@@ -47,7 +47,7 @@ export default async function MemberPage() {
                 <p className="text-xs text-slate-400">{b.lokasi_sesi === "home" ? "Home Service" : "Di Studio"} · {b.anak_nama} · Total {formatRupiah(tagihan)}</p>
                 <Stepper status={b.status_pengerjaan} />
                 <div className="mt-3 flex gap-2 text-xs font-bold">
-                  <Link href={`/booking/${b.kode_booking}`} className="rounded-full bg-white px-3 py-1.5 ring-1 ring-black/10">Detail</Link>
+                  <Link href={`/member/${b.kode_booking}`} className="rounded-full bg-white px-3 py-1.5 ring-1 ring-black/10">Detail</Link>
                   <a href={`/invoice/${b.kode_booking}`} target="_blank" rel="noreferrer" className="rounded-full bg-white px-3 py-1.5 ring-1 ring-black/10">Invoice</a>
                 </div>
               </div>
