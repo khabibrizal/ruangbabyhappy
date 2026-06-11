@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ruang Baby Happy — Mockup Desain "Baby Happy"</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { display: ['"Baloo 2"','cursive'], body: ['Nunito','sans-serif'] },
+      colors: {
+        cream: '#FFF8F3', ink: '#4A3B47',
+        babypink: '#F9A8D4', babypeach: '#FDBA74', babymint: '#6EE7B7', babysky: '#7DD3FC',
+      },
+      borderRadius: { '4xl': '2rem' },
+    }
+  }
+}
+</script>
+<style>
+  body { background:#F3E9F2; font-family:'Nunito',sans-serif; color:#4A3B47; }
+  h1,h2,h3,.font-display { font-family:'Baloo 2',cursive; }
+  .grad { background-image: linear-gradient(135deg,#F9A8D4 0%,#FDA4AF 45%,#FDBA74 100%); }
+  .grad-text { background-image: linear-gradient(135deg,#EC4899,#FB7185,#FB923C); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-soft { background-image: linear-gradient(160deg,#FFE4EF 0%,#FFF1E6 55%,#E9FBF1 100%); }
+  .phone { width:392px; }
+  .phone-screen { border-radius:2.25rem; border:1px solid rgba(74,59,71,.12); box-shadow:0 24px 60px -20px rgba(180,90,140,.45); overflow:hidden; }
+  .ph { background:#FFF8F3; }
+  .swatch { width:44px;height:44px;border-radius:14px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.05);}
+  .pill { border-radius:9999px; }
+  .ill { display:flex;align-items:center;justify-content:center; }
+  .tagline { letter-spacing:.04em; }
+</style>
+</head>
+<body class="py-10 px-4">
+
+<!-- ============ HEADER / DESIGN SYSTEM ============ -->
+<div class="max-w-5xl mx-auto mb-12">
+  <div class="text-center">
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 pill bg-white shadow-sm text-sm font-semibold">
+      <span class="w-2.5 h-2.5 rounded-full grad"></span> Mockup Desain · Tema "Baby Happy"
+    </div>
+    <h1 class="text-4xl md:text-5xl font-extrabold mt-4">Ruang Baby Happy</h1>
+    <p class="tagline text-ink/60 font-semibold mt-1">imagine your little moment</p>
+    <p class="text-sm text-ink/50 max-w-xl mx-auto mt-3">Mobile-first, pastel lembut & playful — kontras dari tema gelap Ruang Happy Studio. Geser ke bawah untuk melihat tiap layar.</p>
+  </div>
+
+  <div class="mt-8 bg-white rounded-3xl p-6 shadow-sm flex flex-wrap gap-8 items-center justify-center">
+    <div class="text-center">
+      <div class="flex gap-2">
+        <div class="swatch" style="background:#F9A8D4"></div>
+        <div class="swatch" style="background:#FDA4AF"></div>
+        <div class="swatch" style="background:#FDBA74"></div>
+        <div class="swatch" style="background:#6EE7B7"></div>
+        <div class="swatch" style="background:#7DD3FC"></div>
+      </div>
+      <p class="text-xs text-ink/50 mt-2 font-semibold">Palet pastel</p>
+    </div>
+    <div class="text-center">
+      <div class="grad text-white font-display font-bold px-5 py-2 pill text-lg">Aa Baloo 2</div>
+      <p class="text-xs text-ink/50 mt-2 font-semibold">Judul · ramah & bulat</p>
+    </div>
+    <div class="text-center">
+      <div class="px-5 py-2 rounded-xl bg-cream font-semibold">Aa Nunito — teks isi</div>
+      <p class="text-xs text-ink/50 mt-2 font-semibold">Body</p>
+    </div>
+    <div class="text-center">
+      <div class="flex gap-2">
+        <span class="grad text-white px-4 py-2 pill text-sm font-bold">Tombol Pill</span>
+        <span class="bg-white ring-1 ring-babypink/50 text-pink-500 px-4 py-2 pill text-sm font-bold">Outline</span>
+      </div>
+      <p class="text-xs text-ink/50 mt-2 font-semibold">Aksi</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREENS GALLERY ============ -->
+<div class="max-w-[1700px] mx-auto flex flex-wrap gap-10 justify-center items-start">
+
+  <!-- 1. LANDING -->
+  <div class="phone">
+    <p class="text-center font-display font-bold text-lg mb-3">1 · Landing</p>
+    <div class="phone-screen ph">
+      <!-- navbar -->
+      <div class="flex items-center justify-between px-5 py-3 bg-white/80 backdrop-blur sticky top-0">
+        <div class="font-display font-extrabold text-lg">Ruang Baby<span class="grad-text">Happy</span></div>
+        <div class="flex gap-2 text-xs font-bold">
+          <span class="px-3 py-1.5 pill ring-1 ring-babypink/50 text-pink-500">Masuk</span>
+          <span class="px-3 py-1.5 pill grad text-white">Daftar</span>
+        </div>
+      </div>
+      <!-- hero -->
+      <div class="grad-soft px-6 pt-8 pb-10 text-center relative overflow-hidden">
+        <div class="absolute -top-8 -right-8 w-32 h-32 rounded-full grad opacity-30 blur-2xl"></div>
+        <div class="absolute -bottom-10 -left-6 w-32 h-32 rounded-full bg-babymint opacity-40 blur-2xl"></div>
+        <span class="relative inline-block px-3 py-1 pill bg-white text-xs font-bold shadow-sm">📷 Baby & Kids Photo · Sidoarjo</span>
+        <h1 class="relative text-3xl font-extrabold leading-tight mt-4">Abadikan momen<br><span class="grad-text">si kecil</span> ✨</h1>
+        <p class="relative text-sm text-ink/60 mt-3 font-semibold">Newborn · Cakesmash · Maternity · Sitter.<br>Bisa home service ke rumah Anda.</p>
+        <div class="relative flex gap-2 justify-center mt-5">
+          <span class="grad text-white px-5 py-2.5 pill text-sm font-bold shadow-lg">Booking Sekarang</span>
+          <span class="bg-white px-5 py-2.5 pill text-sm font-bold shadow-sm">Lihat Galeri</span>
+        </div>
+      </div>
+      <!-- galeri strip -->
+      <div class="px-5 py-6">
+        <h2 class="font-bold text-lg mb-3">Galeri 💕</h2>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="aspect-[3/4] rounded-2xl ill text-3xl" style="background:linear-gradient(160deg,#FFE4EF,#FFD1DC)">👶</div>
+          <div class="aspect-[3/4] rounded-2xl ill text-3xl" style="background:linear-gradient(160deg,#FFF1E6,#FFD9B8)">🎂</div>
+          <div class="aspect-[3/4] rounded-2xl ill text-3xl" style="background:linear-gradient(160deg,#E9FBF1,#C7F2DC)">🤰</div>
+          <div class="aspect-[3/4] rounded-2xl ill text-3xl" style="background:linear-gradient(160deg,#E6F4FF,#CCE9FF)">🧸</div>
+          <div class="aspect-[3/4] rounded-2xl ill text-3xl" style="background:linear-gradient(160deg,#FFE4EF,#FFD1DC)">👣</div>
+          <div class="aspect-[3/4] rounded-2xl grad ill text-white text-center text-xs font-bold p-2">Lihat semua di IG →</div>
+        </div>
+      </div>
+      <!-- layanan / paket -->
+      <div class="px-5 pb-6">
+        <h2 class="font-bold text-lg mb-1">Pilih Layanan</h2>
+        <p class="text-xs text-ink/50 mb-3 font-semibold">Paket dikelompokkan per layanan</p>
+
+        <div class="text-xs font-extrabold text-pink-500 uppercase tracking-wide mb-2">Newborn</div>
+        <div class="bg-white rounded-3xl p-3 shadow-sm flex gap-3 mb-3">
+          <div class="w-20 h-20 rounded-2xl ill text-3xl shrink-0" style="background:linear-gradient(160deg,#FFE4EF,#FFD1DC)">👶</div>
+          <div class="flex-1">
+            <div class="font-bold">Newborn Classic</div>
+            <div class="text-xs text-ink/50 font-semibold">±90 menit · 10 foto edit</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="font-display font-extrabold text-pink-500">Rp1.000.000</span>
+              <span class="grad text-white text-xs font-bold px-3 py-1.5 pill">Booking →</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-xs font-extrabold text-orange-500 uppercase tracking-wide mb-2 mt-4">Cakesmash</div>
+        <div class="bg-white rounded-3xl p-3 shadow-sm flex gap-3">
+          <div class="w-20 h-20 rounded-2xl ill text-3xl shrink-0" style="background:linear-gradient(160deg,#FFF1E6,#FFD9B8)">🎂</div>
+          <div class="flex-1">
+            <div class="font-bold">Cakesmash Fun</div>
+            <div class="text-xs text-ink/50 font-semibold">±60 menit · tema custom</div>
+            <div class="flex items-center justify-between mt-1">
+              <span class="font-display font-extrabold text-orange-500">Rp750.000</span>
+              <span class="grad text-white text-xs font-bold px-3 py-1.5 pill">Booking →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- cara booking -->
+      <div class="grad-soft px-5 py-6">
+        <h2 class="font-bold text-lg mb-3">Cara Booking</h2>
+        <div class="space-y-2">
+          <div class="flex gap-3 items-center bg-white/70 rounded-2xl p-3"><span class="grad text-white w-7 h-7 rounded-full ill font-bold text-sm">1</span><span class="text-sm font-semibold">Daftar / masuk akun</span></div>
+          <div class="flex gap-3 items-center bg-white/70 rounded-2xl p-3"><span class="grad text-white w-7 h-7 rounded-full ill font-bold text-sm">2</span><span class="text-sm font-semibold">Pilih paket, sesi & lokasi</span></div>
+          <div class="flex gap-3 items-center bg-white/70 rounded-2xl p-3"><span class="grad text-white w-7 h-7 rounded-full ill font-bold text-sm">3</span><span class="text-sm font-semibold">Transfer DP & upload bukti</span></div>
+        </div>
+      </div>
+      <!-- footer -->
+      <div class="px-5 py-6 bg-white">
+        <div class="rounded-2xl overflow-hidden ring-1 ring-ink/10 ill h-28 text-sm font-bold text-ink/50" style="background:linear-gradient(160deg,#E9FBF1,#E6F4FF)">🗺️ Peta lokasi (klik → rute)</div>
+        <p class="text-xs text-ink/60 mt-3 font-semibold">Jl. Contoh No. 00, Sidoarjo</p>
+        <div class="flex gap-3 mt-3 text-xs font-bold">
+          <span class="text-pink-500">📷 @ruangbabyhappy</span>
+          <span class="text-green-600">💬 WhatsApp</span>
+        </div>
+        <p class="text-[10px] text-ink/40 mt-4">© 2026 Ruang Baby Happy</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. DETAIL PAKET + FORM BOOKING -->
+  <div class="phone">
+    <p class="text-center font-display font-bold text-lg mb-3">2 · Detail Paket + Booking</p>
+    <div class="phone-screen ph">
+      <div class="grad-soft px-5 pt-5 pb-6">
+        <div class="text-xs font-bold text-ink/50 mb-2">← Kembali</div>
+        <div class="w-full aspect-[4/3] rounded-3xl ill text-5xl mb-4" style="background:linear-gradient(160deg,#FFE4EF,#FFD1DC)">👶</div>
+        <span class="px-3 py-1 pill bg-white text-xs font-extrabold text-pink-500">NEWBORN</span>
+        <h1 class="text-2xl font-extrabold mt-2">Newborn Classic</h1>
+        <p class="text-sm text-ink/60 font-semibold mt-1">Sesi lembut untuk si kecil 0–28 hari. 10 foto edit terbaik, properti & wrapping disediakan.</p>
+        <div class="font-display font-extrabold text-2xl text-pink-500 mt-2">Rp1.000.000</div>
+      </div>
+
+      <div class="px-5 py-5 space-y-5">
+        <!-- tanggal + sesi -->
+        <div>
+          <label class="font-bold text-sm">📅 Tanggal</label>
+          <div class="mt-1.5 bg-white rounded-2xl px-4 py-3 ring-1 ring-ink/10 text-sm font-semibold">Sabtu, 21 Jun 2026</div>
+        </div>
+        <div>
+          <label class="font-bold text-sm">⏰ Pilih Sesi</label>
+          <div class="grid grid-cols-2 gap-2 mt-1.5">
+            <div class="grad text-white rounded-2xl p-3 text-center shadow"><div class="font-bold text-sm">Sesi 1</div><div class="text-xs opacity-90">09:00</div></div>
+            <div class="bg-white ring-1 ring-ink/10 rounded-2xl p-3 text-center relative opacity-50"><div class="font-bold text-sm">Sesi 2</div><div class="text-xs">13:00</div><span class="absolute top-1 right-2 text-[9px] font-bold text-rose-400">terisi</span></div>
+          </div>
+        </div>
+
+        <!-- data anak -->
+        <div class="bg-cream rounded-3xl p-4">
+          <div class="font-bold text-sm mb-2">🍼 Data Anak</div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-xl px-3 py-2.5 ring-1 ring-ink/10 text-sm"><span class="text-ink/40 font-semibold">Nama anak:</span> Arsyila</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-white rounded-xl px-3 py-2.5 ring-1 ring-ink/10 text-sm"><span class="text-ink/40 font-semibold">BB:</span> 3.4 kg</div>
+              <div class="bg-white rounded-xl px-3 py-2.5 ring-1 ring-ink/10 text-sm flex gap-1 items-center"><span class="text-ink/40 font-semibold">JK:</span>
+                <span class="grad text-white text-[10px] font-bold px-2 py-0.5 pill">Perempuan</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- lokasi sesi -->
+        <div>
+          <label class="font-bold text-sm">📍 Lokasi Sesi</label>
+          <div class="grid grid-cols-2 gap-2 mt-1.5">
+            <div class="bg-white ring-1 ring-ink/10 rounded-2xl p-3 text-center text-sm font-bold">Di Studio</div>
+            <div class="grad text-white rounded-2xl p-3 text-center text-sm font-bold shadow">Home Service ✓</div>
+          </div>
+          <div class="mt-2 space-y-2">
+            <select class="w-full bg-white rounded-xl px-3 py-2.5 ring-1 ring-ink/10 text-sm font-semibold">
+              <option>Zona 2 (5–10 km) — Rp100.000</option>
+            </select>
+            <textarea class="w-full bg-white rounded-xl px-3 py-2.5 ring-1 ring-ink/10 text-sm" rows="2">Jl. Melati No. 12, Waru, Sidoarjo</textarea>
+          </div>
+        </div>
+
+        <!-- upload bukti -->
+        <div>
+          <label class="font-bold text-sm">🧾 Bukti Transfer (wajib)</label>
+          <div class="mt-1.5 border-2 border-dashed border-babypink/60 rounded-2xl p-4 text-center text-sm text-ink/50 font-semibold bg-pink-50/40">+ Unggah foto bukti TF</div>
+        </div>
+
+        <!-- RINCIAN TOTAL -->
+        <div class="bg-white rounded-3xl p-4 shadow-sm ring-1 ring-babypink/30">
+          <div class="font-bold text-sm mb-2">💰 Rincian Pembayaran</div>
+          <div class="space-y-1.5 text-sm font-semibold">
+            <div class="flex justify-between"><span class="text-ink/60">Paket Newborn Classic</span><span>Rp1.000.000</span></div>
+            <div class="flex justify-between"><span class="text-ink/60">Home Service (Zona 2)</span><span>Rp100.000</span></div>
+            <div class="flex justify-between text-emerald-600"><span>Diskon pelanggan lama</span><span>−Rp50.000</span></div>
+            <div class="border-t border-dashed border-ink/15 my-1.5"></div>
+            <div class="flex justify-between font-extrabold text-base"><span>Total</span><span class="grad-text">Rp1.050.000</span></div>
+            <div class="flex justify-between text-pink-500 font-bold"><span>DP (30%)</span><span>Rp315.000</span></div>
+            <div class="flex justify-between text-ink/50 text-xs"><span>Sisa saat hari-H</span><span>Rp735.000</span></div>
+          </div>
+        </div>
+
+        <button class="w-full grad text-white font-bold py-3.5 pill shadow-lg">Buat Booking 🎀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. KONFIRMASI -->
+  <div class="phone">
+    <p class="text-center font-display font-bold text-lg mb-3">3 · Konfirmasi Booking</p>
+    <div class="phone-screen ph">
+      <div class="grad-soft px-6 py-8 text-center">
+        <div class="w-16 h-16 grad rounded-full ill text-3xl mx-auto shadow-lg">🎉</div>
+        <h1 class="text-2xl font-extrabold mt-3">Booking Diterima!</h1>
+        <p class="text-sm text-ink/60 font-semibold mt-1">Menunggu verifikasi bukti transfer oleh admin.</p>
+        <div class="mt-4 bg-white rounded-2xl py-3 px-4 inline-block shadow-sm">
+          <div class="text-xs text-ink/50 font-semibold">Kode Booking</div>
+          <div class="font-display font-extrabold text-xl grad-text">RBH-7K2A9</div>
+        </div>
+      </div>
+      <div class="px-5 py-5 space-y-3">
+        <div class="bg-white rounded-3xl p-4 shadow-sm text-sm font-semibold space-y-1.5">
+          <div class="flex justify-between"><span class="text-ink/50">Layanan</span><span>Newborn</span></div>
+          <div class="flex justify-between"><span class="text-ink/50">Paket</span><span>Newborn Classic</span></div>
+          <div class="flex justify-between"><span class="text-ink/50">Jadwal</span><span>21 Jun 2026 · Sesi 1</span></div>
+          <div class="flex justify-between"><span class="text-ink/50">Lokasi</span><span>Home · Zona 2</span></div>
+          <div class="flex justify-between"><span class="text-ink/50">Anak</span><span>Arsyila · 3.4kg · P</span></div>
+        </div>
+        <div class="bg-white rounded-3xl p-4 shadow-sm text-sm font-semibold space-y-1.5">
+          <div class="flex justify-between"><span class="text-ink/50">Total</span><span>Rp1.050.000</span></div>
+          <div class="flex justify-between text-pink-500"><span>DP (30%) — transfer</span><span class="font-bold">Rp315.000</span></div>
+          <div class="flex justify-between text-ink/50 text-xs"><span>Sisa saat hari-H</span><span>Rp735.000</span></div>
+        </div>
+        <div class="bg-amber-50 ring-1 ring-amber-200 rounded-2xl p-3 text-xs text-amber-700 font-semibold">📌 Bukti transfer sudah terkirim. Admin akan konfirmasi via WhatsApp.</div>
+        <button class="w-full bg-green-500 text-white font-bold py-3.5 pill shadow-lg flex items-center justify-center gap-2">💬 Chat Admin Newborn (WA)</button>
+        <button class="w-full bg-white ring-1 ring-ink/10 font-bold py-3 pill text-sm">Unduh Invoice (PDF)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. MEMBER DASHBOARD + STEPPER -->
+  <div class="phone">
+    <p class="text-center font-display font-bold text-lg mb-3">4 · Dashboard Member (tracking)</p>
+    <div class="phone-screen ph">
+      <div class="bg-white px-5 py-4 flex items-center justify-between">
+        <div><div class="text-xs text-ink/50 font-semibold">Halo,</div><div class="font-display font-extrabold text-lg">Bunda Sarah 👋</div></div>
+        <div class="w-10 h-10 grad rounded-full ill text-white font-bold">S</div>
+      </div>
+      <div class="px-5 py-4 space-y-4">
+        <h2 class="font-bold">Booking Saya</h2>
+
+        <!-- card with stepper -->
+        <div class="bg-white rounded-3xl p-4 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-bold">Newborn Classic</div>
+              <div class="text-xs text-ink/50 font-semibold">RBH-7K2A9 · 21 Jun · Sesi 1</div>
+            </div>
+            <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 pill">LUNAS</span>
+          </div>
+
+          <!-- STEPPER status pengerjaan -->
+          <div class="mt-4 bg-cream rounded-2xl p-3">
+            <div class="text-xs font-bold text-ink/60 mb-3">Status Pengerjaan Foto</div>
+            <div class="flex items-center justify-between">
+              <!-- step done -->
+              <div class="flex flex-col items-center flex-1">
+                <div class="w-7 h-7 rounded-full grad text-white ill text-xs font-bold">✓</div>
+                <div class="text-[9px] font-bold mt-1 text-center text-ink/60">Pilih<br>Foto</div>
+              </div>
+              <div class="h-0.5 flex-1 grad -mt-4"></div>
+              <!-- step current -->
+              <div class="flex flex-col items-center flex-1">
+                <div class="w-7 h-7 rounded-full grad text-white ill text-xs font-bold ring-4 ring-pink-200">✎</div>
+                <div class="text-[9px] font-extrabold mt-1 text-center text-pink-500">Edit</div>
+              </div>
+              <div class="h-0.5 flex-1 bg-ink/15 -mt-4"></div>
+              <div class="flex flex-col items-center flex-1">
+                <div class="w-7 h-7 rounded-full bg-ink/15 text-white ill text-xs font-bold">3</div>
+                <div class="text-[9px] font-bold mt-1 text-center text-ink/40">Cetak</div>
+              </div>
+              <div class="h-0.5 flex-1 bg-ink/15 -mt-4"></div>
+              <div class="flex flex-col items-center flex-1">
+                <div class="w-7 h-7 rounded-full bg-ink/15 text-white ill text-xs font-bold">4</div>
+                <div class="text-[9px] font-bold mt-1 text-center text-ink/40">Kirim</div>
+              </div>
+              <div class="h-0.5 flex-1 bg-ink/15 -mt-4"></div>
+              <div class="flex flex-col items-center flex-1">
+                <div class="w-7 h-7 rounded-full bg-ink/15 text-white ill text-xs font-bold">★</div>
+                <div class="text-[9px] font-bold mt-1 text-center text-ink/40">Selesai</div>
+              </div>
+            </div>
+            <div class="text-center text-xs font-bold text-pink-500 mt-3">📸 Sedang tahap: Edit foto</div>
+          </div>
+
+          <div class="flex gap-2 mt-3 text-xs font-bold">
+            <span class="flex-1 text-center bg-white ring-1 ring-ink/10 py-2 pill">Invoice</span>
+            <span class="flex-1 text-center bg-green-500 text-white py-2 pill">Chat Admin</span>
+          </div>
+        </div>
+
+        <!-- second booking - belum mulai -->
+        <div class="bg-white rounded-3xl p-4 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-bold">Cakesmash Fun</div>
+              <div class="text-xs text-ink/50 font-semibold">RBH-9M1B3 · 05 Jul · Sesi 2</div>
+            </div>
+            <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-1 pill">DP</span>
+          </div>
+          <div class="mt-3 bg-cream rounded-2xl p-3 text-center text-xs font-bold text-ink/40">⏳ Menunggu sesi foto</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. AUTH -->
+  <div class="phone">
+    <p class="text-center font-display font-bold text-lg mb-3">5 · Daftar / Masuk</p>
+    <div class="phone-screen ph grad-soft">
+      <div class="px-6 py-10">
+        <div class="text-center mb-6">
+          <div class="font-display font-extrabold text-2xl">Ruang Baby<span class="grad-text">Happy</span></div>
+          <p class="text-sm text-ink/55 font-semibold mt-1">Daftar dulu untuk booking 🎀</p>
+        </div>
+        <div class="bg-white rounded-4xl p-6 shadow-lg space-y-3">
+          <div class="flex gap-2 text-sm font-bold mb-1">
+            <span class="flex-1 text-center grad text-white py-2 pill">Daftar</span>
+            <span class="flex-1 text-center text-ink/40 py-2 pill">Masuk</span>
+          </div>
+          <input class="w-full bg-cream rounded-xl px-4 py-3 text-sm" placeholder="Nama lengkap"/>
+          <input class="w-full bg-cream rounded-xl px-4 py-3 text-sm" placeholder="No. WhatsApp"/>
+          <input class="w-full bg-cream rounded-xl px-4 py-3 text-sm" placeholder="Email"/>
+          <input class="w-full bg-cream rounded-xl px-4 py-3 text-sm" placeholder="Password" type="password"/>
+          <button class="w-full grad text-white font-bold py-3.5 pill shadow-lg mt-2">Buat Akun</button>
+        </div>
+        <p class="text-center text-xs text-ink/45 font-semibold mt-4">Booking wajib punya akun untuk tracking pesanan</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. ADMIN DETAIL (light functional) -->
+  <div class="phone">
+    <p class="text-center font-display font-bold text-lg mb-3">6 · Admin · Detail Transaksi</p>
+    <div class="phone-screen" style="background:#F8FAFC">
+      <div class="bg-slate-800 text-white px-5 py-3 text-sm font-bold flex justify-between"><span>← Transaksi</span><span class="text-slate-300">Admin</span></div>
+      <div class="px-5 py-4 space-y-3 text-sm">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+          <div class="font-bold text-slate-800">RBH-7K2A9 · Newborn</div>
+          <div class="text-slate-500 text-xs mt-1">Bunda Sarah · 0812-xxxx · member</div>
+          <div class="text-slate-500 text-xs">Anak: Arsyila · 3.4kg · P</div>
+          <div class="text-slate-500 text-xs">Home · Zona 2 · Jl. Melati No.12, Waru</div>
+          <div class="text-slate-500 text-xs">21 Jun 2026 · Sesi 1 (09:00)</div>
+          <a class="inline-block mt-2 text-xs font-bold text-blue-600">🧾 Lihat bukti TF</a>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 space-y-2">
+          <div class="font-bold text-slate-700 text-xs uppercase tracking-wide">Pembayaran</div>
+          <label class="block text-xs font-semibold text-slate-500">Ongkos (override)
+            <input class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" value="100000"/></label>
+          <label class="block text-xs font-semibold text-slate-500">Diskon (override)
+            <input class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" value="50000"/></label>
+          <label class="block text-xs font-semibold text-slate-500">Status bayar
+            <select class="w-full mt-1 border border-slate-300 rounded-lg px-3 py-2 text-sm"><option>Lunas</option><option>Sudah DP</option><option>Belum bayar</option></select></label>
+          <div class="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">Total Rp1.050.000 · DP(30%) Rp315.000 · Sisa Rp735.000</div>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 space-y-2">
+          <div class="font-bold text-slate-700 text-xs uppercase tracking-wide">Status Pengerjaan</div>
+          <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+            <option>Belum mulai</option><option selected>Edit</option><option>Pilih Foto</option><option>Cetak</option><option>Pengiriman</option><option>Selesai</option>
+          </select>
+        </div>
+
+        <div class="flex gap-2">
+          <button class="flex-1 bg-slate-800 text-white font-bold py-2.5 rounded-lg text-sm">Simpan</button>
+          <button class="flex-1 bg-green-500 text-white font-bold py-2.5 rounded-lg text-sm">Kirim Invoice WA</button>
+        </div>
+        <p class="text-[10px] text-slate-400 text-center">Panel admin tetap terang & fungsional (tanpa tema dekoratif)</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="text-center text-xs text-ink/40 font-semibold mt-12">Mockup statis · data contoh · Ruang Baby Happy — tema "Baby Happy"</p>
+
+</body>
+</html>
