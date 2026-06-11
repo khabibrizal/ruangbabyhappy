@@ -7,8 +7,10 @@ export const brand = {
   // TODO(user): ganti alamat & koordinat asli saat implementasi
   alamat: "Sidoarjo",
   kota: "Sidoarjo",
-  mapsEmbed: "https://maps.google.com/maps?q=-7.4478,112.7183&z=15&output=embed",
-  mapsDir: "https://www.google.com/maps/dir/?api=1&destination=-7.4478,112.7183",
+  // Titik lokasi studio (dari https://maps.app.goo.gl/L9idTE82A7igrQW97)
+  mapsEmbed: "https://maps.google.com/maps?q=-7.368132,112.759980&z=16&output=embed",
+  // Rute TANPA origin -> Google otomatis pakai lokasi user (petunjuk arah dari lokasimu)
+  mapsDir: "https://www.google.com/maps/dir/?api=1&destination=-7.368132,112.759980",
   // TODO(user): isi rekening asli untuk ditampilkan di invoice
   bank: "BCA",
   noRek: "0000000000",
