@@ -150,7 +150,7 @@ export async function uploadGaleri(formData: FormData) {
   const file = formData.get("gambar");
   if (!(file instanceof File) || file.size === 0) throw new Error("Gambar wajib diupload");
   if (!file.type.startsWith("image/")) throw new Error("File harus gambar");
-  if (file.size > 8_000_000) throw new Error("Ukuran maksimal 8MB");
+  if (file.size > 25_000_000) throw new Error("Ukuran maksimal 25MB");
 
   const masuk = Buffer.from(await file.arrayBuffer());
   const webp = await sharp(masuk)
