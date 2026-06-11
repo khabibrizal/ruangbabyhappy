@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { buatBooking } from "@/lib/booking/createBooking";
 import { btnGrad } from "@/components/ui/buttons";
+import SubmitButton from "@/components/ui/SubmitButton";
 import { formatRupiah } from "@/lib/format/rupiah";
 import { hitungDiskon, hitungTagihan, hitungDp } from "@/lib/booking/hitung";
 
@@ -152,7 +153,7 @@ export default function BookingForm({
               className="mt-1 block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-pink-100 file:px-4 file:py-2 file:font-bold file:text-pink-600" />
           </label>
 
-          <button className={`${btnGrad} w-full`} disabled={!bisaSubmit}>Buat Booking 🎀</button>
+          <SubmitButton className={`${btnGrad} w-full`} pendingText="Mengirim booking…">Buat Booking 🎀</SubmitButton>
         </>
       )}
     </form>
