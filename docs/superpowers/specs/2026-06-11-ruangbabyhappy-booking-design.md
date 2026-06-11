@@ -1,0 +1,248 @@
+# Ruang Baby Happy — Booking Sesi Foto Bayi/Anak — Design Spec
+
+> **Status:** Disetujui untuk masuk tahap rencana implementasi
+> **Tanggal:** 2026-06-11
+> **Konteks:** Project baru. Booking online sesi foto bayi/anak (cakesmash, maternity, sitter, newborn). Mengadopsi arsitektur **booking-studio** (Next.js + Supabase) dengan delta: jadwal berbasis **2 sesi/hari**, **field anak** di form, **diskon pelanggan lama**, **routing WA per layanan**, tanpa loyalitas poin, dan **desain "Baby Happy"** yang baru.
+
+---
+
+## 1. Tujuan
+
+Aplikasi web self-service untuk **booking sesi foto bayi/anak**:
+- Visitor & member dapat memesan tanpa harus tanya admin dulu.
+- Jadwal harian **hanya 2 sesi** (Sesi 1 & Sesi 2), kapasitas 1 per sesi **per layanan**.
+- Form menangkap data anak (nama, berat badan, jenis kelamin).
+- **Pelanggan lama** otomatis mendapat potongan diskon (override admin tersedia).
+- Tiap layanan punya **admin/nomor WA** sendiri untuk kontak & invoice.
+- Pembayaran **manual** (upload bukti transfer → admin verifikasi → Set Lunas).
+
+### Non-goals (MVP)
+WA gateway/payment gateway otomatis, **program loyalitas poin & reward** (dibuang dari basis booking-studio), multi-admin dengan hak granular per role, aplikasi mobile native, lightbox/galeri terpisah.
+
+---
+
+## 2. Stack & Setup
+
+Identik dengan booking-studio:
+- **Next.js 16 + React 19**, **TypeScript**, **Tailwind v4**.
+- **Supabase**: Postgres + Auth (email/password) + Storage. **Project Supabase baru** (data/auth/storage terpisah dari booking-studio).
+- **@react-pdf/renderer** (invoice PDF on-demand), **sharp** (kompres foto galeri — runtime dependency).
+- **Vitest** (unit) + **Playwright** (E2E desktop + Pixel 5).
+- Lokasi: project baru `d:\ruangbabyhappy`, mem-fork struktur folder booking-studio (`src/app`, `src/lib`, `src/components`, `supabase/migrations`, `tests`).
+- Logika sensitif (buat booking + validasi ketersediaan, ubah status bayar, hitung diskon) berjalan **server-side** (Server Actions, service-role). Akses ditegakkan **RLS Supabase** + cek role di action.
+
+---
+
+## 3. Model Data (skema fresh — `0001_init.sql`)
+
+Mulai dari skema booking-studio, terapkan delta berikut.
+
+### 3.1 Dibuang (vs booking-studio)
+- Tabel **`reward`, `redemption`, `resource`**.
+- Kolom **`profiles.total_point`**, **`package.point_reward`**, **`payment.point_granted`**.
+- Logika poin pada RPC pelunasan (RPC disederhanakan: set lunas + `booking.completed` saja).
+- Halaman member reward & admin redemption.
+
+### 3.2 `profiles` (1:1 auth user)
+`id, role ('member'|'admin'), nama, no_wa, alamat, email, created_at`. (Tanpa `total_point`.) Member dipertahankan untuk deteksi pelanggan lama (returning) bagi diskon.
+
+### 3.3 `layanan` (master baru)
+```sql
+create table public.layanan (
+  id uuid primary key default gen_random_uuid(),
+  nama text not null,
+  admin_wa text not null,            -- nomor WA admin tujuan (format 62…)
+  urutan smallint not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+```
+Seed:
+| nama | admin_wa |
+|---|---|
+| cakesmash | 6282233684933 |
+| maternity | 6282233684933 |
+| sitter | 6282233684933 |
+| newborn | 6285156217634 |
+
+Admin dapat tambah/ubah layanan & nomor WA-nya di master.
+
+### 3.4 `sesi` (master baru — pengganti operating_hours + slot jam)
+```sql
+create table public.sesi (
+  id uuid primary key default gen_random_uuid(),
+  nama text not null,                -- "Sesi 1", "Sesi 2"
+  jam_mulai time not null,
+  urutan smallint not null default 0,
+  is_active boolean not null default true
+);
+```
+Seed **placeholder** (jam diatur ulang oleh admin di master): `Sesi 1` = `09:00`, `Sesi 2` = `13:00`. **Kapasitas = 1 booking per (layanan, sesi, tanggal).**
+
+### 3.5 `blackout_date`
+Dipertahankan apa adanya — penutupan tanggal tertentu (libur). *(Hari libur mingguan rutin di luar cakupan MVP; cukup blackout per tanggal.)*
+
+### 3.6 `package`
+Kolom booking-studio **tanpa** `point_reward`, **tambah**:
+- `layanan_id uuid not null references layanan(id)`
+- `diskon_returning integer not null default 0` (Rp potongan untuk pelanggan lama)
+- `durasi_menit` **dipertahankan** hanya untuk menghitung jam selesai (display/invoice).
+Tetap ada: `nama, deskripsi, harga, dp_amount?, foto_url, is_active`.
+
+### 3.7 `booking`
+Ganti model slot-jam menjadi sesi + tambah field anak:
+```sql
+create table public.booking (
+  id uuid primary key default gen_random_uuid(),
+  kode_booking text not null unique,
+  package_id uuid not null references package(id),
+  sesi_id uuid not null references sesi(id),
+  customer_profile_id uuid references profiles(id),
+  guest_nama text, guest_wa text, guest_alamat text, guest_email text,
+  anak_nama text not null,
+  anak_bb numeric(4,1) not null,     -- berat badan anak (kg)
+  anak_jk text not null check (anak_jk in ('L','P')),
+  tanggal date not null,
+  jam_mulai time not null,           -- snapshot dari sesi.jam_mulai saat booking
+  status_booking text not null default 'pending'
+    check (status_booking in ('pending','confirmed','completed','cancelled')),
+  catatan text,
+  created_at timestamptz not null default now()
+);
+```
+(`resource_id`, `jam_selesai` dihapus; jam selesai diturunkan dari `jam_mulai + package.durasi_menit` saat render/invoice.)
+
+### 3.8 `payment`
+Kolom booking-studio **tanpa** `point_granted`, **tambah** `diskon`:
+```
+id, booking_id (unique), total, diskon (int, default 0), dp_amount,
+status_bayar ('unpaid'|'dp_paid'|'lunas'), metode, dibayar_at, dicatat_oleh, bukti_url, catatan_admin
+```
+- `total` = `package.harga`.
+- `diskon` = diskon yang diterapkan (auto/override).
+- **Tagihan = total − diskon.**
+- **DP = `Math.round((total − diskon) * 0.5)`.**
+
+### 3.9 Storage
+Dua bucket (sama pola booking-studio v2):
+- `bukti-tf` (**privat**) — bukti transfer; baca via signed URL service-role.
+- `galeri` (**publik**) — foto galeri landing (kompres sharp WebP ≤1600px).
+
+---
+
+## 4. Ketersediaan Sesi (inti)
+
+`getSesiTersedia(packageId, tanggal)` (service-role, kembalikan daftar sesi available):
+1. Ambil paket → `layanan_id`, validasi `is_active`.
+2. Bila `tanggal` ∈ `blackout_date` → kosong.
+3. Bila `tanggal` < hari ini → kosong (sesi lampau dibuang bila tanggal = hari ini & jam sesi sudah lewat).
+4. Ambil semua `sesi` aktif (urut `urutan`).
+5. Sebuah sesi **TERISI** bila ada booking lain pada **`tanggal` + `sesi_id` yang sama, untuk paket dengan `layanan_id` sama**, ber-status pembayaran `dp_paid`/`lunas` (kapasitas 1). → buang dari daftar available.
+6. Booking `pending` (belum diverifikasi) **tidak mengunci** sesi — siapa cepat diverifikasi.
+
+Validasi dilakukan **dua kali**: saat customer submit (informatif) dan **wajib ulang di server saat admin Set Lunas / dp_paid** (penegakan final). Sama untuk `rescheduleBooking`.
+
+---
+
+## 5. Diskon Pelanggan Lama (kombinasi otomatis + override admin)
+
+Fungsi murni `hitungDiskon(opts: { isMember: boolean; returning: boolean; diskonReturning: number }): number`:
+- `returning` = member login yang punya **≥1 booking dengan payment `lunas`** sebelumnya.
+- Member returning → diskon = `package.diskon_returning`; selain itu → 0.
+- TDD: unit test (returning→nilai paket, non-returning→0, visitor→0).
+
+Penerapan:
+- `createBooking` (server): hitung `returning` untuk member login (query histori lunas), set `payment.diskon` otomatis. Visitor → 0.
+- **Override admin:** di halaman detail transaksi, admin dapat mengubah nilai `diskon` (kolom Rp); `dp_amount` & sisa dihitung ulang. Ditegakkan server-side (`diskon ≥ 0`, `diskon ≤ total`).
+
+---
+
+## 6. Routing WA per Layanan
+
+`booking → package → layanan → layanan.admin_wa`.
+- Halaman konfirmasi `/booking/[kode]`: tombol **"Chat Admin via WA"** → `wa.me/<layanan.admin_wa>` (template berisi `kode_booking`, paket, layanan, tanggal/sesi).
+- Admin detail transaksi: **"Kirim Invoice WA"** → nomor `layanan.admin_wa` paket tsb (cakesmash/maternity/sitter → 0822…, newborn → 0851…).
+- Helper `waLink` menerima nomor (dinormalisasi) + teks.
+
+---
+
+## 7. Form Booking (`/paket/[id]`)
+
+Komponen `FormBooking` (client), Server Action `createBooking` (service-role, multipart):
+- **Pilih:** tanggal + **Sesi 1/Sesi 2** (dari `getSesiTersedia`, ditampilkan sebagai tombol pill; sesi terisi dinonaktifkan).
+- **Field anak (semua pemesan, wajib):** `anak_nama`, `anak_bb` (kg), `anak_jk` (L/P).
+- **Visitor (belum login):** `nama`, `no_wa`, `email` wajib; `alamat` opsional.
+- **Member:** identitas dari profil; tetap isi field anak.
+- **Upload bukti TF wajib** (`accept="image/*"`, ≤5MB, validasi server).
+- Tampilkan **DP 50%** dari (harga − diskon). Member returning → DP sudah memperhitungkan diskon.
+- Submit → `createBooking`: validasi sesi ulang, upload bukti, insert `booking` (pending) + `payment` (`unpaid`, total, diskon, dp), redirect `/booking/<kode>`.
+
+---
+
+## 8. Tampilan — "Baby Happy" (terang & lembut)
+
+Tema baru, **kontras** dari Neon Night booking-studio:
+- **Latar terang**, palet **pastel hangat** (pink/peach/mint), sudut **membulat besar**, tombol pill, font ramah, aksen ilustratif playful — sesuai foto bayi/anak.
+- Token warna terpusat di `globals.css`; data brand terpusat di `src/lib/brand.ts` (**placeholder** — nama lengkap, alamat, IG, koordinat Maps, logo, nomor WA umum diisi user; foto galeri seed dari `d:\RuangBabyHappy`).
+- **Halaman publik bertema ini:** `/` (landing), `/paket/[id]`, `/login`, `/register`, `/booking/[kode]`.
+- **Landing:** Navbar (wordmark + Login/Daftar) → Hero → Galeri (next/image) → **Paket dikelompokkan per layanan** (cakesmash/maternity/sitter/newborn) via `getActivePackages` join layanan → Cara Booking (3 langkah) → Footer (peta embed klik-rute, IG, WA, alamat).
+- **Admin & member tetap terang-fungsional** (tidak diberi tema dekoratif).
+- Mobile-first (target sentuh ≥44px, tanpa scroll horizontal). Mockup visual dapat dibuat saat implementasi bila diperlukan.
+
+---
+
+## 9. Admin (dashboard bersama — routing WA saja)
+
+Semua booking terlihat oleh admin mana pun (tidak ada pemisahan akses per layanan).
+- **Daftar transaksi** `/admin/transaksi`: kartu menampilkan kode, layanan, paket, tanggal/sesi, data anak ringkas, status; link **Lihat bukti TF** (signed URL).
+- **Detail transaksi** `/admin/transaksi/[kode]`: data customer + **data anak** + paket/tanggal/sesi + total/diskon/DP/sisa. Form edit: `dp_amount`, **`diskon` (override)**, `status` (unpaid/dp_paid/lunas) — Set Lunas memvalidasi kapasitas sesi (per layanan) lebih dulu. **Reschedule** (paket + tanggal + sesi, validasi `getSesiTersedia`). Tombol **Cetak Invoice** + **Kirim Invoice WA** (nomor layanan).
+- **Master:** `layanan` (CRUD + admin_wa), `paket` (+ layanan & diskon_returning), `sesi` (nama + jam), `blackout`, `galeri` (upload+kompres), `customer`. Aturan delete sama dgn booking-studio (soft untuk paket/layanan; hard untuk sesi/blackout/galeri; customer tanpa delete).
+- **Laporan** + export CSV dipertahankan (filter periode/status; rekap pendapatan & jumlah booking).
+
+---
+
+## 10. Invoice PDF (`/invoice/[kode]`)
+
+Route handler GET, render `@react-pdf/renderer`, akses publik-by-kode (kode = token kapabilitas). Dokumen: header **Ruang Baby Happy** + tagline, No. Transaksi, data customer (+ **data anak**), layanan + paket + tanggal/sesi (jam mulai–selesai dari durasi), **Total, Diskon, Subtotal, DP, Sisa**, status, ucapan terima kasih. Format rupiah.
+
+---
+
+## 11. Testing
+
+- **Unit (TDD):** `hitungDp`, `hitungDiskon` (returning/non-returning/visitor), ketersediaan sesi (terisi per layanan, blackout, lampau).
+- **E2E (desktop + Pixel 5, self-cleaning via REST helper):**
+  - Booking visitor: isi field anak + pilih sesi + upload bukti → konfirmasi muncul; nomor WA = layanan paket.
+  - Member returning: setelah punya 1 transaksi lunas, booking berikutnya menampilkan DP sudah terpotong diskon.
+  - Admin Set Lunas → sesi itu (untuk layanan tsb) hilang dari `getSesiTersedia`; sesi sama layanan lain tetap tersedia.
+  - Invoice: `GET /invoice/<kode>` → `content-type: application/pdf`, body non-kosong, memuat data anak & diskon.
+  - WA routing: paket newborn → href `wa.me/6285156217634`; cakesmash → `wa.me/6282233684933`.
+- **Verifikasi:** `next build` + unit + E2E hijau. Data uji dibuat & dibersihkan via REST.
+
+---
+
+## 12. Langkah Manual
+
+1. Buat **project Supabase baru**, isi `.env.local` (URL, anon key, service-role key).
+2. Apply `supabase/migrations/0001_init.sql` (skema + seed layanan/sesi) + buat bucket `bukti-tf` (privat) & `galeri` (publik).
+3. Isi `src/lib/brand.ts` (brand asli) + unggah foto galeri.
+4. Set jam Sesi 1/Sesi 2 final di master (placeholder 09:00/13:00).
+
+---
+
+## 13. Keputusan Terkunci
+
+1. **Tanpa loyalitas poin/reward**; sebagai gantinya **diskon pelanggan lama** = nominal per paket (`diskon_returning`), auto untuk member returning + override admin.
+2. Jadwal = **2 sesi tetap/hari**, kapasitas **1 per (layanan, sesi, tanggal)** — layanan berbeda boleh berbagi sesi yang sama di hari sama.
+3. **2 admin = routing WA saja** (dashboard bersama); nomor WA per layanan di master `layanan`. cakesmash/maternity/sitter → 6282233684933; newborn → 6285156217634.
+4. Form menambah **data anak** (nama, BB, jenis kelamin), wajib.
+5. **Project & Supabase baru**; fork arsitektur booking-studio (pembayaran upload-bukti v2 dipertahankan).
+6. Desain publik **"Baby Happy"** terang-pastel; admin/member tetap terang-fungsional.
+
+---
+
+## 14. Self-Review
+
+- **Placeholder sadar (bukan TBD):** jam sesi (09:00/13:00) & aset brand diisi user saat implementasi — perilaku sistem tidak bergantung pada nilai spesifiknya.
+- **Konsistensi:** reuse pola booking-studio v2 (upload bukti, signed URL, RPC lunas, invoice react-pdf, master CRUD, laporan CSV); `payment` to-one dihormati; tidak ada referensi ke tabel/kolom yang dibuang.
+- **Ambiguitas teratasi:** kapasitas = per layanan; diskon = kombinasi (eksplisit di §5); WA routing dari master layanan; field anak wajib & tipe jelas.
+- **Scope:** satu project kohesif sebesar MVP booking-studio awal; cukup untuk satu siklus rencana implementasi (dapat dipecah jadi beberapa plan: skema+auth, katalog+sesi, booking+bayar, admin+invoice, diskon, desain).
