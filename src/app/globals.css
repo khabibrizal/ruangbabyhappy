@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fff8f3;
+  --foreground: #4a3b47;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-nunito);
+  --font-display: var(--font-baloo);
+}
+
+body {
+  background: #f3e9f2;
+  color: var(--foreground);
+  font-family: var(--font-nunito), system-ui, Arial, sans-serif;
+}
+
+/* === Utilities tema "Baby Happy" === */
+.bg-grad {
+  background-image: linear-gradient(135deg, #f9a8d4 0%, #fda4af 45%, #fdba74 100%);
+}
+.text-grad {
+  background-image: linear-gradient(135deg, #ec4899, #fb7185, #fb923c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.grad-soft {
+  background-image: linear-gradient(160deg, #ffe4ef 0%, #fff1e6 55%, #e9fbf1 100%);
+}
+.font-display {
+  font-family: var(--font-baloo), cursive;
+}
