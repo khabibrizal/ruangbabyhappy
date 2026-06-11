@@ -36,17 +36,22 @@ export async function simpanDetailTransaksi(formData: FormData) {
     .eq("id", bookingId)
     .single();
   if (!b) redirect(`/admin/transaksi/${kode}?error=Booking%20tidak%20ditemukan`);
-  const pkg = (b as { package: { layanan_id: string; dp_persen: number } | null }).package;
-  const pay0 = (b as { payment: { total: number } | null }).payment;
-  const total = pay0?.total ?? 0;
+  const bb = b as unknown as {
+    sesi_id: string;
+    tanggal: string;
+    package: { layanan_id: string; dp_persen: number } | null;
+    payment: { total: number } | null;
+  };
+  const pkg = bb.package;
+  const total = bb.payment?.total ?? 0;
 
   // Guard kapasitas per layanan: tak boleh terbayar bila sesi+tanggal+layanan sudah diisi booking terbayar LAIN.
   if (status === "dp_paid" || status === "lunas") {
     const { data: lain } = await admin
       .from("booking")
       .select("id, package!inner(layanan_id), payment!inner(status_bayar)")
-      .eq("tanggal", (b as { tanggal: string }).tanggal)
-      .eq("sesi_id", (b as { sesi_id: string }).sesi_id)
+      .eq("tanggal", bb.tanggal)
+      .eq("sesi_id", bb.sesi_id)
       .eq("package.layanan_id", pkg?.layanan_id ?? "")
       .in("payment.status_bayar", ["dp_paid", "lunas"])
       .neq("id", bookingId);

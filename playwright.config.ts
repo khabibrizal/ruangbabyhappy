@@ -15,6 +15,9 @@ export default defineConfig({
   testDir: "./tests/e2e",
   timeout: 60_000,
   expect: { timeout: 15_000 },
+  // Login berbasis Supabase auth sesekali balapan/throttle saat banyak login paralel;
+  // 1 retry membuat suite tahan flakiness tanpa men-serialkan semua test.
+  retries: 1,
   workers: process.env.CI ? 1 : 2,
   use: { baseURL: "http://localhost:3000" },
   projects: [
