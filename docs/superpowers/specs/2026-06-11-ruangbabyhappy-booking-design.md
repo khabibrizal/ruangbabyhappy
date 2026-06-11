@@ -8,16 +8,17 @@
 
 ## 1. Tujuan
 
-Aplikasi web self-service untuk **booking sesi foto bayi/anak**:
-- Visitor & member dapat memesan tanpa harus tanya admin dulu.
+Aplikasi web untuk **booking sesi foto bayi/anak**:
+- **Booking wajib registrasi/login** — hanya akun **member** & **admin** (tidak ada jalur visitor/tamu). Pemesan harus daftar dulu sebelum bisa booking.
 - Jadwal harian **hanya 2 sesi** (Sesi 1 & Sesi 2), kapasitas 1 per sesi **per layanan**.
 - Form menangkap data anak (nama, berat badan, jenis kelamin).
 - **Pelanggan lama** otomatis mendapat potongan diskon (override admin tersedia).
 - Tiap layanan punya **admin/nomor WA** sendiri untuk kontak & invoice.
 - Pembayaran **manual** (upload bukti transfer → admin verifikasi → Set Lunas).
+- **Tracking status pengerjaan foto** (5 tahap) yang dilihat member di dashboard-nya.
 
 ### Non-goals (MVP)
-WA gateway/payment gateway otomatis, **program loyalitas poin & reward** (dibuang dari basis booking-studio), multi-admin dengan hak granular per role, aplikasi mobile native, lightbox/galeri terpisah.
+WA gateway/payment gateway otomatis, **program loyalitas poin & reward** (dibuang dari basis booking-studio), **jalur booking visitor/tamu tanpa akun** (dibuang — wajib login), multi-admin dengan hak granular per role, aplikasi mobile native, lightbox/galeri terpisah.
 
 ---
 
@@ -44,7 +45,7 @@ Mulai dari skema booking-studio, terapkan delta berikut.
 - Halaman member reward & admin redemption.
 
 ### 3.2 `profiles` (1:1 auth user)
-`id, role ('member'|'admin'), nama, no_wa, alamat, email, created_at`. (Tanpa `total_point`.) Member dipertahankan untuk deteksi pelanggan lama (returning) bagi diskon.
+`id, role ('member'|'admin'), nama, no_wa, alamat, email, created_at`. (Tanpa `total_point`.) **Setiap pemesan wajib punya akun member** (tidak ada visitor) — dipakai untuk identitas booking, deteksi pelanggan lama (returning) bagi diskon, dan tracking status pengerjaan.
 
 ### 3.3 `layanan` (master baru)
 ```sql
@@ -90,15 +91,14 @@ Kolom booking-studio **tanpa** `point_reward`, **tambah**:
 Tetap ada: `nama, deskripsi, harga, dp_amount?, foto_url, is_active`.
 
 ### 3.7 `booking`
-Ganti model slot-jam menjadi sesi + tambah field anak:
+Ganti model slot-jam menjadi sesi + tambah field anak + status pengerjaan. **Tanpa kolom `guest_*`** (semua booking milik member); `customer_profile_id` **wajib**.
 ```sql
 create table public.booking (
   id uuid primary key default gen_random_uuid(),
   kode_booking text not null unique,
   package_id uuid not null references package(id),
   sesi_id uuid not null references sesi(id),
-  customer_profile_id uuid references profiles(id),
-  guest_nama text, guest_wa text, guest_alamat text, guest_email text,
+  customer_profile_id uuid not null references profiles(id),
   anak_nama text not null,
   anak_bb numeric(4,1) not null,     -- berat badan anak (kg)
   anak_jk text not null check (anak_jk in ('L','P')),
@@ -106,11 +106,13 @@ create table public.booking (
   jam_mulai time not null,           -- snapshot dari sesi.jam_mulai saat booking
   status_booking text not null default 'pending'
     check (status_booking in ('pending','confirmed','completed','cancelled')),
+  status_pengerjaan text             -- NULL = belum mulai; lihat §3.10
+    check (status_pengerjaan in ('pilih_foto','edit','cetak','pengiriman','selesai')),
   catatan text,
   created_at timestamptz not null default now()
 );
 ```
-(`resource_id`, `jam_selesai` dihapus; jam selesai diturunkan dari `jam_mulai + package.durasi_menit` saat render/invoice.)
+(`resource_id`, `jam_selesai`, `guest_*` dihapus; jam selesai diturunkan dari `jam_mulai + package.durasi_menit` saat render/invoice.)
 
 ### 3.8 `payment`
 Kolom booking-studio **tanpa** `point_granted`, **tambah** `diskon`:
@@ -127,6 +129,14 @@ status_bayar ('unpaid'|'dp_paid'|'lunas'), metode, dibayar_at, dicatat_oleh, buk
 Dua bucket (sama pola booking-studio v2):
 - `bukti-tf` (**privat**) — bukti transfer; baca via signed URL service-role.
 - `galeri` (**publik**) — foto galeri landing (kompres sharp WebP ≤1600px).
+
+### 3.10 Status pengerjaan (`booking.status_pengerjaan`)
+Pipeline produksi foto, **terpisah dari status pembayaran**, urut linear:
+`pilih_foto → edit → cetak → pengiriman → selesai`.
+- Label tampil: **Pilih Foto · Edit · Cetak · Pengiriman · Selesai**.
+- **`NULL` = belum mulai** (produksi belum jalan, mis. sesi foto belum berlangsung) → ditampilkan "Menunggu sesi foto".
+- Diisi/dimajukan **oleh admin** di halaman detail transaksi (dropdown). Tidak otomatis dari status bayar.
+- Ditampilkan ke **member** sebagai progress tracker (stepper) di dashboard member; admin melihat & mengubahnya di detail transaksi. (Tidak ada visitor.)
 
 ---
 
@@ -146,13 +156,14 @@ Validasi dilakukan **dua kali**: saat customer submit (informatif) dan **wajib u
 
 ## 5. Diskon Pelanggan Lama (kombinasi otomatis + override admin)
 
-Fungsi murni `hitungDiskon(opts: { isMember: boolean; returning: boolean; diskonReturning: number }): number`:
-- `returning` = member login yang punya **≥1 booking dengan payment `lunas`** sebelumnya.
-- Member returning → diskon = `package.diskon_returning`; selain itu → 0.
-- TDD: unit test (returning→nilai paket, non-returning→0, visitor→0).
+Semua pemesan adalah member (wajib login), jadi deteksi selalu berbasis akun.
+Fungsi murni `hitungDiskon(opts: { returning: boolean; diskonReturning: number }): number`:
+- `returning` = member punya **≥1 booking dengan payment `lunas`** sebelumnya.
+- Member returning → diskon = `package.diskon_returning`; member pertama kali → 0.
+- TDD: unit test (returning→nilai paket, first-timer→0).
 
 Penerapan:
-- `createBooking` (server): hitung `returning` untuk member login (query histori lunas), set `payment.diskon` otomatis. Visitor → 0.
+- `createBooking` (server): hitung `returning` dari histori lunas member yang login, set `payment.diskon` otomatis.
 - **Override admin:** di halaman detail transaksi, admin dapat mengubah nilai `diskon` (kolom Rp); `dp_amount` & sisa dihitung ulang. Ditegakkan server-side (`diskon ≥ 0`, `diskon ≤ total`).
 
 ---
@@ -168,14 +179,14 @@ Penerapan:
 
 ## 7. Form Booking (`/paket/[id]`)
 
+**Wajib login** — bila belum login, halaman/aksi mengarahkan ke `/login` (atau `/register`) lebih dulu (gate di server).
 Komponen `FormBooking` (client), Server Action `createBooking` (service-role, multipart):
 - **Pilih:** tanggal + **Sesi 1/Sesi 2** (dari `getSesiTersedia`, ditampilkan sebagai tombol pill; sesi terisi dinonaktifkan).
-- **Field anak (semua pemesan, wajib):** `anak_nama`, `anak_bb` (kg), `anak_jk` (L/P).
-- **Visitor (belum login):** `nama`, `no_wa`, `email` wajib; `alamat` opsional.
-- **Member:** identitas dari profil; tetap isi field anak.
+- **Field anak (wajib):** `anak_nama`, `anak_bb` (kg), `anak_jk` (L/P).
+- Identitas pemesan diambil dari **profil member** yang login (nama/WA/email); tidak ada field tamu.
 - **Upload bukti TF wajib** (`accept="image/*"`, ≤5MB, validasi server).
 - Tampilkan **DP 50%** dari (harga − diskon). Member returning → DP sudah memperhitungkan diskon.
-- Submit → `createBooking`: validasi sesi ulang, upload bukti, insert `booking` (pending) + `payment` (`unpaid`, total, diskon, dp), redirect `/booking/<kode>`.
+- Submit → `createBooking`: cek login, validasi sesi ulang, upload bukti, insert `booking` (pending, `customer_profile_id` = member) + `payment` (`unpaid`, total, diskon, dp), redirect `/booking/<kode>`.
 
 ---
 
@@ -194,10 +205,19 @@ Tema baru, **kontras** dari Neon Night booking-studio:
 ## 9. Admin (dashboard bersama — routing WA saja)
 
 Semua booking terlihat oleh admin mana pun (tidak ada pemisahan akses per layanan).
-- **Daftar transaksi** `/admin/transaksi`: kartu menampilkan kode, layanan, paket, tanggal/sesi, data anak ringkas, status; link **Lihat bukti TF** (signed URL).
-- **Detail transaksi** `/admin/transaksi/[kode]`: data customer + **data anak** + paket/tanggal/sesi + total/diskon/DP/sisa. Form edit: `dp_amount`, **`diskon` (override)**, `status` (unpaid/dp_paid/lunas) — Set Lunas memvalidasi kapasitas sesi (per layanan) lebih dulu. **Reschedule** (paket + tanggal + sesi, validasi `getSesiTersedia`). Tombol **Cetak Invoice** + **Kirim Invoice WA** (nomor layanan).
+- **Daftar transaksi** `/admin/transaksi`: kartu menampilkan kode, layanan, paket, tanggal/sesi, data anak ringkas, **status bayar + status pengerjaan**; link **Lihat bukti TF** (signed URL).
+- **Detail transaksi** `/admin/transaksi/[kode]`: data customer (member) + **data anak** + paket/tanggal/sesi + total/diskon/DP/sisa. Form edit: `dp_amount`, **`diskon` (override)**, `status` bayar (unpaid/dp_paid/lunas) — Set Lunas memvalidasi kapasitas sesi (per layanan) lebih dulu — dan **`status_pengerjaan`** (dropdown: belum mulai/pilih_foto/edit/cetak/pengiriman/selesai), disimpan via server action `updateStatusPengerjaan` (guard admin). **Reschedule** (paket + tanggal + sesi, validasi `getSesiTersedia`). Tombol **Cetak Invoice** + **Kirim Invoice WA** (nomor layanan).
 - **Master:** `layanan` (CRUD + admin_wa), `paket` (+ layanan & diskon_returning), `sesi` (nama + jam), `blackout`, `galeri` (upload+kompres), `customer`. Aturan delete sama dgn booking-studio (soft untuk paket/layanan; hard untuk sesi/blackout/galeri; customer tanpa delete).
 - **Laporan** + export CSV dipertahankan (filter periode/status; rekap pendapatan & jumlah booking).
+
+---
+
+## 9b. Member (dashboard)
+
+`/member` (login member): riwayat booking milik member + **progress tracker status pengerjaan** tiap booking.
+- Tracker = **stepper 5 tahap** (Pilih Foto · Edit · Cetak · Pengiriman · Selesai); tahap saat ini ter-highlight, tahap terlewati ter-ceklis. `status_pengerjaan = NULL` → "Menunggu sesi foto".
+- Juga tampilkan: kode, layanan, paket, tanggal/sesi, data anak, status bayar (+DP/sisa), tombol invoice & Chat Admin WA (nomor layanan).
+- Member hanya melihat booking miliknya (RLS + filter `customer_profile_id`). Tema member tetap terang-fungsional.
 
 ---
 
@@ -209,11 +229,13 @@ Route handler GET, render `@react-pdf/renderer`, akses publik-by-kode (kode = to
 
 ## 11. Testing
 
-- **Unit (TDD):** `hitungDp`, `hitungDiskon` (returning/non-returning/visitor), ketersediaan sesi (terisi per layanan, blackout, lampau).
+- **Unit (TDD):** `hitungDp`, `hitungDiskon` (returning→nilai paket, first-timer→0), ketersediaan sesi (terisi per layanan, blackout, lampau).
 - **E2E (desktop + Pixel 5, self-cleaning via REST helper):**
-  - Booking visitor: isi field anak + pilih sesi + upload bukti → konfirmasi muncul; nomor WA = layanan paket.
+  - **Gate login:** akses form booking tanpa login → diarahkan ke `/login`/`/register`; tak ada jalur tamu.
+  - Booking member: login → isi field anak + pilih sesi + upload bukti → konfirmasi muncul; nomor WA = layanan paket.
   - Member returning: setelah punya 1 transaksi lunas, booking berikutnya menampilkan DP sudah terpotong diskon.
   - Admin Set Lunas → sesi itu (untuk layanan tsb) hilang dari `getSesiTersedia`; sesi sama layanan lain tetap tersedia.
+  - **Status pengerjaan:** admin ubah `status_pengerjaan` di detail → member melihat tahap baru di `/member` (stepper).
   - Invoice: `GET /invoice/<kode>` → `content-type: application/pdf`, body non-kosong, memuat data anak & diskon.
   - WA routing: paket newborn → href `wa.me/6285156217634`; cakesmash → `wa.me/6282233684933`.
 - **Verifikasi:** `next build` + unit + E2E hijau. Data uji dibuat & dibersihkan via REST.
@@ -237,6 +259,8 @@ Route handler GET, render `@react-pdf/renderer`, akses publik-by-kode (kode = to
 4. Form menambah **data anak** (nama, BB, jenis kelamin), wajib.
 5. **Project & Supabase baru**; fork arsitektur booking-studio (pembayaran upload-bukti v2 dipertahankan).
 6. Desain publik **"Baby Happy"** terang-pastel; admin/member tetap terang-fungsional.
+7. **Booking wajib registrasi/login — tidak ada visitor/tamu.** Hanya akun member & admin; `booking.guest_*` dihapus, `customer_profile_id` wajib.
+8. **Status pengerjaan 5 tahap** (`pilih_foto → edit → cetak → pengiriman → selesai`, NULL=belum mulai) terpisah dari status bayar; diatur admin, ditampilkan ke member sebagai stepper di `/member`.
 
 ---
 
