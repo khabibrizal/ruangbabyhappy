@@ -7,3 +7,6 @@ node_modules
 /coverage
 *.tsbuildinfo
 next-env.d.ts
+
+# E2E generated bukti fixture
+tests/e2e/_bukti.png

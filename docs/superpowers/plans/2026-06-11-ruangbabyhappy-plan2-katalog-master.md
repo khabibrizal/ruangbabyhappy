@@ -1007,8 +1007,9 @@ test("admin bisa buka hub master & daftar layanan tampil", async ({ page }) => {
   await loginAdmin(page);
   await page.goto("/admin/master/layanan");
   await expect(page.getByRole("heading", { name: /Master Layanan/i })).toBeVisible();
-  // Seed: Newborn ada
-  await expect(page.getByDisplayValue("Newborn")).toBeVisible();
+  // Seed: Newborn ada. (CATATAN: Playwright TIDAK punya getByDisplayValue — itu Testing Library.
+  // Pakai selektor atribut value; input ber-defaultValue merender value attribute di SSR.)
+  await expect(page.locator('input[value="Newborn"]')).toBeVisible();
 });
 
 test("admin tambah paket uji lalu menonaktifkannya (self-clean)", async ({ page }) => {
@@ -1020,10 +1021,10 @@ test("admin tambah paket uji lalu menonaktifkannya (self-clean)", async ({ page 
   await page.locator('input[name="harga"]').first().fill("123456");
   await page.locator('input[name="durasi_menit"]').first().fill("60");
   await page.getByRole("button", { name: /Tambah Paket/i }).click();
-  await expect(page.getByDisplayValue(namaUji)).toBeVisible();
+  await expect(page.locator(`input[value="${namaUji}"]`)).toBeVisible();
 
   // Self-clean: nonaktifkan paket uji (tombol toggle pada kartu yang punya nama itu)
-  const kartu = page.locator("div.rounded.border", { has: page.getByDisplayValue(namaUji) });
+  const kartu = page.locator("div.rounded.border", { has: page.locator(`input[value="${namaUji}"]`) });
   await kartu.getByRole("button", { name: /Nonaktifkan/i }).click();
   await expect(kartu.getByRole("button", { name: /Aktifkan/i })).toBeVisible();
 });

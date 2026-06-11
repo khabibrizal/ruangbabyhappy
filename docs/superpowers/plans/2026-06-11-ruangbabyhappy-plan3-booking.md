@@ -236,25 +236,38 @@ export async function getBookingByKode(kode: string): Promise<BookingKonfirmasi 
     .maybeSingle();
   if (!data) return null;
 
-  const pkg = data.package as unknown as
-    | { nama: string; durasi_menit: number; layanan: { nama: string; admin_wa: string } | null }
-    | null;
+  // PostgREST meng-infer `data` sbg union dgn tipe error utk nested-select; cast dulu.
+  const d = data as unknown as {
+    kode_booking: string;
+    tanggal: string;
+    jam_mulai: string;
+    anak_nama: string;
+    anak_bb: number;
+    anak_jk: string;
+    lokasi_sesi: string;
+    alamat_sesi: string | null;
+    sesi: { nama: string } | null;
+    zona: { nama: string } | null;
+    package: { nama: string; durasi_menit: number; layanan: { nama: string; admin_wa: string } | null } | null;
+    payment: BookingKonfirmasi["payment"];
+  };
+  const pkg = d.package;
 
   return {
-    kode_booking: data.kode_booking as string,
-    tanggal: data.tanggal as string,
-    jam_mulai: data.jam_mulai as string,
-    anak_nama: data.anak_nama as string,
-    anak_bb: data.anak_bb as number,
-    anak_jk: data.anak_jk as string,
-    lokasi_sesi: data.lokasi_sesi as string,
-    alamat_sesi: (data.alamat_sesi as string) ?? null,
-    sesi: (data.sesi as unknown as { nama: string }) ?? null,
-    zona: (data.zona as unknown as { nama: string }) ?? null,
+    kode_booking: d.kode_booking,
+    tanggal: d.tanggal,
+    jam_mulai: d.jam_mulai,
+    anak_nama: d.anak_nama,
+    anak_bb: d.anak_bb,
+    anak_jk: d.anak_jk,
+    lokasi_sesi: d.lokasi_sesi,
+    alamat_sesi: d.alamat_sesi ?? null,
+    sesi: d.sesi ?? null,
+    zona: d.zona ?? null,
     package: pkg ? { nama: pkg.nama, durasi_menit: pkg.durasi_menit } : null,
     layanan_nama: pkg?.layanan?.nama ?? "",
     layanan_admin_wa: pkg?.layanan?.admin_wa ?? "",
-    payment: (data.payment as unknown as BookingKonfirmasi["payment"]) ?? null,
+    payment: d.payment ?? null,
   };
 }
 ```
@@ -810,12 +823,17 @@ let paketId = "";
 let layananId = "";
 
 test.beforeAll(async () => {
-  const ctx = await pwRequest.newContext();
+  // UA non-browser: secret key Supabase (sb_secret_*) DITOLAK 401 bila request tampak dari browser (UA HeadlessChrome).
+  const ctx = await pwRequest.newContext({ userAgent: "rbh-e2e-setup" });
   // ambil 1 layanan
   const lres = await ctx.get(`${URL}/rest/v1/layanan?select=id&limit=1`, {
     headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
   });
-  layananId = (await lres.json())[0].id;
+  const ljson = await lres.json();
+  if (!Array.isArray(ljson) || !ljson[0]) {
+    throw new Error(`layanan fetch gagal: status=${lres.status()} body=${JSON.stringify(ljson)}`);
+  }
+  layananId = ljson[0].id;
   // buat paket uji
   const pres = await ctx.post(`${URL}/rest/v1/package`, {
     headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json", Prefer: "return=representation" },
@@ -826,7 +844,8 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  const ctx = await pwRequest.newContext();
+  // UA non-browser: secret key Supabase (sb_secret_*) DITOLAK 401 bila request tampak dari browser (UA HeadlessChrome).
+  const ctx = await pwRequest.newContext({ userAgent: "rbh-e2e-setup" });
   // hapus booking uji (yang punya paket ini) lalu paket uji
   await ctx.delete(`${URL}/rest/v1/booking?package_id=eq.${paketId}`, {
     headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },

@@ -32,24 +32,36 @@ export async function getBookingByKode(kode: string): Promise<BookingKonfirmasi 
     .maybeSingle();
   if (!data) return null;
 
-  const pkg = data.package as unknown as
-    | { nama: string; durasi_menit: number; layanan: { nama: string; admin_wa: string } | null }
-    | null;
+  const d = data as unknown as {
+    kode_booking: string;
+    tanggal: string;
+    jam_mulai: string;
+    anak_nama: string;
+    anak_bb: number;
+    anak_jk: string;
+    lokasi_sesi: string;
+    alamat_sesi: string | null;
+    sesi: { nama: string } | null;
+    zona: { nama: string } | null;
+    package: { nama: string; durasi_menit: number; layanan: { nama: string; admin_wa: string } | null } | null;
+    payment: BookingKonfirmasi["payment"];
+  };
+  const pkg = d.package;
 
   return {
-    kode_booking: data.kode_booking as string,
-    tanggal: data.tanggal as string,
-    jam_mulai: data.jam_mulai as string,
-    anak_nama: data.anak_nama as string,
-    anak_bb: data.anak_bb as number,
-    anak_jk: data.anak_jk as string,
-    lokasi_sesi: data.lokasi_sesi as string,
-    alamat_sesi: (data.alamat_sesi as string) ?? null,
-    sesi: (data.sesi as unknown as { nama: string }) ?? null,
-    zona: (data.zona as unknown as { nama: string }) ?? null,
+    kode_booking: d.kode_booking,
+    tanggal: d.tanggal,
+    jam_mulai: d.jam_mulai,
+    anak_nama: d.anak_nama,
+    anak_bb: d.anak_bb,
+    anak_jk: d.anak_jk,
+    lokasi_sesi: d.lokasi_sesi,
+    alamat_sesi: d.alamat_sesi ?? null,
+    sesi: d.sesi ?? null,
+    zona: d.zona ?? null,
     package: pkg ? { nama: pkg.nama, durasi_menit: pkg.durasi_menit } : null,
     layanan_nama: pkg?.layanan?.nama ?? "",
     layanan_admin_wa: pkg?.layanan?.admin_wa ?? "",
-    payment: (data.payment as unknown as BookingKonfirmasi["payment"]) ?? null,
+    payment: d.payment ?? null,
   };
 }
