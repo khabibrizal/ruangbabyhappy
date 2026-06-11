@@ -9,17 +9,18 @@ const LABEL_BAYAR: Record<string, string> = { unpaid: "Belum bayar", dp_paid: "S
 export default async function TransaksiAdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; dari?: string; sampai?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; pengerjaan?: string; dari?: string; sampai?: string; page?: string }>;
 }) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
-  const filter: FilterTransaksi = { status: sp.status || undefined, dari: sp.dari || undefined, sampai: sp.sampai || undefined, page };
+  const filter: FilterTransaksi = { status: sp.status || undefined, pengerjaan: sp.pengerjaan || undefined, dari: sp.dari || undefined, sampai: sp.sampai || undefined, page };
   const { rows, total } = await listTransaksiAdmin(filter);
   const totalHalaman = Math.max(1, Math.ceil(total / TRANSAKSI_PER_PAGE));
 
   const buatHref = (p: number) => {
     const params = new URLSearchParams();
     if (filter.status) params.set("status", filter.status);
+    if (filter.pengerjaan) params.set("pengerjaan", filter.pengerjaan);
     if (filter.dari) params.set("dari", filter.dari);
     if (filter.sampai) params.set("sampai", filter.sampai);
     params.set("page", String(p));
@@ -37,6 +38,17 @@ export default async function TransaksiAdminPage({
         <label className="flex flex-col text-sm">Status
           <select name="status" defaultValue={filter.status ?? ""} className="mt-1 rounded border border-slate-300 p-2">
             <option value="">Semua</option><option value="unpaid">Belum bayar</option><option value="dp_paid">Sudah DP</option><option value="lunas">Lunas</option>
+          </select>
+        </label>
+        <label className="flex flex-col text-sm">Pengerjaan
+          <select name="pengerjaan" defaultValue={filter.pengerjaan ?? ""} className="mt-1 rounded border border-slate-300 p-2">
+            <option value="">Semua</option>
+            <option value="belum">Belum mulai</option>
+            <option value="pilih_foto">Pilih Foto</option>
+            <option value="edit">Edit</option>
+            <option value="cetak">Cetak</option>
+            <option value="pengiriman">Pengiriman</option>
+            <option value="selesai">Selesai</option>
           </select>
         </label>
         <label className="flex flex-col text-sm">Dari<input type="date" name="dari" defaultValue={filter.dari ?? ""} className="mt-1 rounded border border-slate-300 p-2" /></label>

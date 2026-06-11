@@ -82,7 +82,7 @@ export type TransaksiRow = {
   bukti_signed_url: string | null;
 };
 
-export type FilterTransaksi = { status?: string; dari?: string; sampai?: string; page?: number };
+export type FilterTransaksi = { status?: string; pengerjaan?: string; dari?: string; sampai?: string; page?: number };
 export const TRANSAKSI_PER_PAGE = 10;
 export type HasilTransaksi = { rows: TransaksiRow[]; total: number };
 
@@ -110,6 +110,8 @@ export async function listTransaksiAdmin(filter: FilterTransaksi = {}): Promise<
   if (filter.status) q = q.eq("payment.status_bayar", filter.status);
   if (filter.dari) q = q.gte("tanggal", filter.dari);
   if (filter.sampai) q = q.lte("tanggal", filter.sampai);
+  if (filter.pengerjaan === "belum") q = q.is("status_pengerjaan", null);
+  else if (filter.pengerjaan) q = q.eq("status_pengerjaan", filter.pengerjaan);
 
   const { data, count } = await q.range(from, to);
   const rows = (data as unknown as Omit<TransaksiRow, "bukti_signed_url">[]) ?? [];
