@@ -87,3 +87,16 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
     layanan_admin_wa: layanan?.admin_wa ?? "",
   };
 }
+
+export type ZonaOpsi = { id: string; nama: string; keterangan: string | null; biaya: number };
+
+/** Zona ongkos aktif (urut) untuk pilihan home service di form booking. */
+export async function getZonaAktif(): Promise<ZonaOpsi[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("zona_ongkos")
+    .select("id, nama, keterangan, biaya")
+    .eq("is_active", true)
+    .order("urutan");
+  return (data as ZonaOpsi[]) ?? [];
+}
