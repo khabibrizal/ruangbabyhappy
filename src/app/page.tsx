@@ -4,6 +4,7 @@ import { brand } from "@/lib/brand";
 import { btnGrad, btnOutline } from "@/components/ui/buttons";
 import { getLayananDenganPaket } from "@/lib/catalog/queries";
 import { formatRupiah } from "@/lib/format/rupiah";
+import GalleryStrip from "@/components/public/GalleryStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,8 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        <GalleryStrip />
 
         <section id="paket" className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
           <h2 className="font-display text-2xl font-extrabold">Pilih Layanan &amp; Paket</h2>
