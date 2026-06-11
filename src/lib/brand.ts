@@ -9,6 +9,10 @@ export const brand = {
   kota: "Sidoarjo",
   mapsEmbed: "https://maps.google.com/maps?q=-7.4478,112.7183&z=15&output=embed",
   mapsDir: "https://www.google.com/maps/dir/?api=1&destination=-7.4478,112.7183",
+  // TODO(user): isi rekening asli untuk ditampilkan di invoice
+  bank: "BCA",
+  noRek: "0000000000",
+  atasNama: "Ruang Baby Happy",
 } as const;
 
 // Foto galeri diisi via master Galeri (Plan 4/5) / folder public; kosong di awal.

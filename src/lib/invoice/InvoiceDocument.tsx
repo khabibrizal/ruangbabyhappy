@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { formatRupiah } from "@/lib/format/rupiah";
+import { brand } from "@/lib/brand";
 
 export type InvoiceData = {
   kode: string; nama: string; noWa: string;
@@ -9,48 +10,133 @@ export type InvoiceData = {
   status: string; tglCetak: string;
 };
 
+const PINK = "#ec4899";
+const PINK_SOFT = "#fdf2f8";
+const BORDER = "#f0d9e6";
+const INK = "#4a3b47";
+const MUTE = "#8b8b8b";
+
+function badgeColor(label: string): { bg: string; fg: string } {
+  if (label === "Lunas") return { bg: "#dcfce7", fg: "#15803d" };
+  if (label.includes("DP")) return { bg: "#fef3c7", fg: "#b45309" };
+  return { bg: "#fee2e2", fg: "#b91c1c" };
+}
+
 const s = StyleSheet.create({
-  page: { padding: 36, fontSize: 11, color: "#111" },
-  brand: { fontSize: 18, fontWeight: 700 },
-  tagline: { color: "#888", marginBottom: 16 },
-  h: { fontSize: 13, fontWeight: 700, marginTop: 14, marginBottom: 6 },
-  row: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 3 },
-  label: { color: "#666" },
-  total: { fontSize: 14, fontWeight: 700 },
-  foot: { marginTop: 24, color: "#888" },
+  page: { paddingBottom: 40, fontSize: 10, color: INK },
+  band: {
+    backgroundColor: PINK, paddingVertical: 24, paddingHorizontal: 36,
+    flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start",
+  },
+  brandName: { fontSize: 20, fontWeight: 700, color: "#ffffff" },
+  tagline: { fontSize: 9, color: "#ffe4f0", marginTop: 3 },
+  invLabel: { fontSize: 16, fontWeight: 700, color: "#ffffff", textAlign: "right" },
+  invMeta: { fontSize: 9, color: "#ffe4f0", textAlign: "right", marginTop: 3 },
+  body: { paddingHorizontal: 36, paddingTop: 20 },
+  cards: { flexDirection: "row" },
+  card: { flex: 1, borderWidth: 1, borderColor: BORDER, borderRadius: 10, padding: 12 },
+  cardH: { fontSize: 8, color: MUTE, letterSpacing: 1, marginBottom: 5 },
+  line: { marginBottom: 3 },
+  sectionH: { fontSize: 11, fontWeight: 700, marginTop: 20, marginBottom: 4 },
+  itemRow: {
+    flexDirection: "row", justifyContent: "space-between",
+    borderBottomWidth: 1, borderBottomColor: "#f3f3f3", paddingVertical: 7,
+  },
+  itemName: { fontWeight: 700 },
+  itemSub: { fontSize: 8, color: MUTE, marginTop: 2 },
+  summary: { backgroundColor: PINK_SOFT, borderRadius: 10, padding: 14, marginTop: 14 },
+  sumRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 2 },
+  sumTotalRow: {
+    flexDirection: "row", justifyContent: "space-between",
+    borderTopWidth: 1, borderTopColor: BORDER, marginTop: 6, paddingTop: 6,
+  },
+  totalTxt: { fontSize: 13, fontWeight: 700, color: PINK },
+  rekBox: { borderWidth: 1, borderColor: BORDER, borderRadius: 10, padding: 12, marginTop: 16 },
+  foot: { marginTop: 24, textAlign: "center", color: MUTE, fontSize: 9 },
 });
 
 export function InvoiceDocument({ d }: { d: InvoiceData }) {
+  const b = badgeColor(d.status);
   return (
     <Document>
       <Page size="A4" style={s.page}>
-        <Text style={s.brand}>Ruang Baby Happy</Text>
-        <Text style={s.tagline}>imagine your little moment</Text>
+        {/* Header band */}
+        <View style={s.band}>
+          <View>
+            <Text style={s.brandName}>{brand.nama}</Text>
+            <Text style={s.tagline}>{brand.tagline}</Text>
+          </View>
+          <View>
+            <Text style={s.invLabel}>INVOICE</Text>
+            <Text style={s.invMeta}>{d.kode}</Text>
+            <Text style={s.invMeta}>{d.tglCetak}</Text>
+          </View>
+        </View>
 
-        <View style={s.row}><Text style={s.label}>No. Transaksi</Text><Text>{d.kode}</Text></View>
-        <View style={s.row}><Text style={s.label}>Tanggal cetak</Text><Text>{d.tglCetak}</Text></View>
+        <View style={s.body}>
+          {/* Kartu Kepada + Status */}
+          <View style={s.cards}>
+            <View style={[s.card, { marginRight: 12 }]}>
+              <Text style={s.cardH}>KEPADA</Text>
+              <Text style={[s.line, { fontWeight: 700 }]}>{d.nama}</Text>
+              <Text style={s.line}>{d.noWa}</Text>
+              <Text style={s.line}>Anak: {d.anak}</Text>
+              <Text style={s.line}>Lokasi: {d.lokasi}</Text>
+            </View>
+            <View style={s.card}>
+              <Text style={s.cardH}>JADWAL & STATUS</Text>
+              <Text style={s.line}>Layanan: {d.layanan}</Text>
+              <Text style={s.line}>{d.tanggal} · {d.sesi}</Text>
+              <View style={{ flexDirection: "row", marginTop: 4 }}>
+                <Text style={{ backgroundColor: b.bg, color: b.fg, fontSize: 9, fontWeight: 700, paddingVertical: 3, paddingHorizontal: 10, borderRadius: 999 }}>
+                  {d.status}
+                </Text>
+              </View>
+            </View>
+          </View>
 
-        <Text style={s.h}>Customer</Text>
-        <View style={s.row}><Text style={s.label}>Nama</Text><Text>{d.nama}</Text></View>
-        <View style={s.row}><Text style={s.label}>No WA</Text><Text>{d.noWa}</Text></View>
-        <View style={s.row}><Text style={s.label}>Anak</Text><Text>{d.anak}</Text></View>
-        <View style={s.row}><Text style={s.label}>Lokasi</Text><Text>{d.lokasi}</Text></View>
+          {/* Rincian pesanan */}
+          <Text style={s.sectionH}>Rincian Pesanan</Text>
+          <View style={s.itemRow}>
+            <View>
+              <Text style={s.itemName}>{d.paket}</Text>
+              <Text style={s.itemSub}>{d.layanan} · {d.tanggal} · {d.sesi}</Text>
+            </View>
+            <Text>{formatRupiah(d.total)}</Text>
+          </View>
+          {d.ongkos > 0 && (
+            <View style={s.itemRow}>
+              <View>
+                <Text style={s.itemName}>Home Service</Text>
+                <Text style={s.itemSub}>{d.lokasi}</Text>
+              </View>
+              <Text>{formatRupiah(d.ongkos)}</Text>
+            </View>
+          )}
 
-        <Text style={s.h}>Pesanan</Text>
-        <View style={s.row}><Text style={s.label}>Layanan</Text><Text>{d.layanan}</Text></View>
-        <View style={s.row}><Text style={s.label}>Paket</Text><Text>{d.paket}</Text></View>
-        <View style={s.row}><Text style={s.label}>Jadwal</Text><Text>{d.tanggal} · {d.sesi}</Text></View>
+          {/* Ringkasan */}
+          <View style={s.summary}>
+            <View style={s.sumRow}><Text>Subtotal</Text><Text>{formatRupiah(d.total + d.ongkos)}</Text></View>
+            {d.diskon > 0 && (
+              <View style={s.sumRow}><Text>Diskon pelanggan lama</Text><Text>-{formatRupiah(d.diskon)}</Text></View>
+            )}
+            <View style={s.sumTotalRow}><Text style={s.totalTxt}>TOTAL</Text><Text style={s.totalTxt}>{formatRupiah(d.tagihan)}</Text></View>
+            <View style={s.sumRow}><Text>DP</Text><Text>{formatRupiah(d.dp)}</Text></View>
+            <View style={s.sumRow}><Text>Sisa</Text><Text>{formatRupiah(d.sisa)}</Text></View>
+          </View>
 
-        <Text style={s.h}>Pembayaran</Text>
-        <View style={s.row}><Text style={s.label}>Paket</Text><Text>{formatRupiah(d.total)}</Text></View>
-        <View style={s.row}><Text style={s.label}>Home Service</Text><Text>{formatRupiah(d.ongkos)}</Text></View>
-        <View style={s.row}><Text style={s.label}>Diskon</Text><Text>-{formatRupiah(d.diskon)}</Text></View>
-        <View style={s.row}><Text style={s.label}>Total</Text><Text style={s.total}>{formatRupiah(d.tagihan)}</Text></View>
-        <View style={s.row}><Text style={s.label}>DP</Text><Text>{formatRupiah(d.dp)}</Text></View>
-        <View style={s.row}><Text style={s.label}>Sisa</Text><Text>{formatRupiah(d.sisa)}</Text></View>
-        <View style={s.row}><Text style={s.label}>Status</Text><Text>{d.status}</Text></View>
+          {/* Rekening */}
+          <View style={s.rekBox}>
+            <Text style={s.cardH}>PEMBAYARAN KE</Text>
+            <Text style={s.line}>{brand.bank} · {brand.noRek}</Text>
+            <Text style={s.line}>a.n. {brand.atasNama}</Text>
+          </View>
 
-        <Text style={s.foot}>Terima kasih telah mempercayakan momen si kecil pada Ruang Baby Happy 🎀</Text>
+          <Text style={s.foot}>
+            Terima kasih telah mempercayakan momen si kecil pada {brand.nama}{"\n"}
+            @{brand.ig} · {brand.alamat}
+          </Text>
+        </View>
       </Page>
     </Document>
   );
