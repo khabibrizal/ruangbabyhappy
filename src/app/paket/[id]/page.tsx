@@ -17,7 +17,7 @@ export default async function PaketDetailPage({
   const { id } = await params;
 
   const profile = await getCurrentProfile();
-  if (!profile) redirect(`/login?error=${encodeURIComponent("Silakan masuk dulu untuk booking")}`);
+  if (!profile) redirect(`/login?next=${encodeURIComponent(`/paket/${id}`)}`);
 
   const paket = await getPackageById(id);
   if (!paket) notFound();
