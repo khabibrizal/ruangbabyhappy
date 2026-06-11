@@ -6,6 +6,7 @@ const MENU = [
   { href: "/admin/master/sesi", label: "Sesi" },
   { href: "/admin/master/zona", label: "Zona Ongkos" },
   { href: "/admin/master/blackout", label: "Blackout Date" },
+  { href: "/admin/master/galeri", label: "Galeri" },
 ];
 
 export default function MasterHubPage() {

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
+import sharp from "sharp";
 
 async function guardAdmin() {
   const me = await getCurrentProfile();
@@ -141,4 +142,42 @@ export async function hapusBlackout(formData: FormData) {
   const admin = await guardAdmin();
   await admin.from("blackout_date").delete().eq("id", String(formData.get("id")));
   revalidatePath("/admin/master/blackout");
+}
+
+// ---- Galeri ----
+export async function uploadGaleri(formData: FormData) {
+  const admin = await guardAdmin();
+  const file = formData.get("gambar");
+  if (!(file instanceof File) || file.size === 0) throw new Error("Gambar wajib diupload");
+  if (!file.type.startsWith("image/")) throw new Error("File harus gambar");
+  if (file.size > 8_000_000) throw new Error("Ukuran maksimal 8MB");
+
+  const masuk = Buffer.from(await file.arrayBuffer());
+  const webp = await sharp(masuk)
+    .rotate()
+    .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 80 })
+    .toBuffer();
+
+  const path = `g-${crypto.randomUUID()}.webp`;
+  const { error: upErr } = await admin.storage.from("galeri").upload(path, webp, { contentType: "image/webp", upsert: true });
+  if (upErr) throw new Error("Gagal upload: " + upErr.message);
+
+  const url = admin.storage.from("galeri").getPublicUrl(path).data.publicUrl;
+  await admin.from("gallery").insert({ url });
+  revalidatePath("/admin/master/galeri");
+  revalidatePath("/");
+}
+
+export async function hapusGaleri(formData: FormData) {
+  const admin = await guardAdmin();
+  const id = String(formData.get("id"));
+  const { data: row } = await admin.from("gallery").select("url").eq("id", id).single();
+  const url = (row?.url as string) ?? "";
+  const marker = "/storage/v1/object/public/galeri/";
+  const i = url.indexOf(marker);
+  if (i >= 0) await admin.storage.from("galeri").remove([url.slice(i + marker.length)]);
+  await admin.from("gallery").delete().eq("id", id);
+  revalidatePath("/admin/master/galeri");
+  revalidatePath("/");
 }
