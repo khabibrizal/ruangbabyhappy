@@ -82,12 +82,15 @@ export default async function DetailTransaksiPage({
           <label className="block text-sm">Ongkos (Rp)<input type="number" name="ongkos" defaultValue={ongkos} min={0} className={inp} /></label>
           <label className="block text-sm">Diskon (Rp)<input type="number" name="diskon" defaultValue={diskon} min={0} className={inp} /></label>
         </div>
+        <label className="mt-3 block text-sm">Nominal DP (Rp)
+          <input type="number" name="dp_amount" defaultValue={dp || ""} min={0} placeholder="Kosongkan = auto 30%" className={inp} />
+        </label>
         <label className="mt-3 block text-sm">Status pembayaran
           <select name="status" defaultValue={status} className={inp}>
             <option value="unpaid">Belum bayar</option><option value="dp_paid">Sudah DP</option><option value="lunas">Lunas</option>
           </select>
         </label>
-        <p className="mt-2 text-xs text-slate-400">DP dihitung ulang otomatis = (paket + ongkos − diskon) × {d.package?.dp_persen ?? 30}%.</p>
+        <p className="mt-2 text-xs text-slate-400">DP bisa diisi manual. Dikosongkan = dihitung otomatis (paket + ongkos − diskon) × {d.package?.dp_persen ?? 30}%.</p>
         <button className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan</button>
       </form>
 

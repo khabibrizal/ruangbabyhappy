@@ -33,6 +33,7 @@ export async function simpanDetailTransaksi(formData: FormData) {
   const status = String(formData.get("status") ?? "unpaid");
   const ongkos = Math.max(0, Number(formData.get("ongkos") ?? 0));
   const diskon = Math.max(0, Number(formData.get("diskon") ?? 0));
+  const dpRaw = String(formData.get("dp_amount") ?? "").trim();
   const admin = createAdminClient();
 
   // Ambil booking (sesi, tanggal, layanan, dp_persen, total).
@@ -66,7 +67,8 @@ export async function simpanDetailTransaksi(formData: FormData) {
     }
   }
 
-  const dp = hitungDp(total + ongkos - diskon, pkg?.dp_persen ?? 30);
+  // DP: manual bila diisi admin; kosong = hitung otomatis (paket+ongkos−diskon)×dp_persen.
+  const dp = dpRaw === "" ? hitungDp(total + ongkos - diskon, pkg?.dp_persen ?? 30) : Math.max(0, Number(dpRaw));
 
   // Selalu simpan ongkos/diskon/dp.
   await admin.from("payment").update({ ongkos, diskon, dp_amount: dp }).eq("id", paymentId);
