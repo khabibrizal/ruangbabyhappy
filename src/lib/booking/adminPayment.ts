@@ -14,6 +14,12 @@ async function guardAdmin() {
   return me;
 }
 
+function navSuffix(formData: FormData): string {
+  if (String(formData.get("ref") ?? "") !== "jadwal") return "";
+  const bulan = String(formData.get("bulan") ?? "");
+  return `&ref=jadwal${bulan ? `&bulan=${encodeURIComponent(bulan)}` : ""}`;
+}
+
 /**
  * Simpan detail pembayaran: override ongkos & diskon, set status bayar.
  * DP dihitung ulang = (total + ongkos − diskon) × dp_persen. Guard kapasitas
@@ -35,7 +41,7 @@ export async function simpanDetailTransaksi(formData: FormData) {
     .select("sesi_id, tanggal, package:package_id(layanan_id, dp_persen), payment(total)")
     .eq("id", bookingId)
     .single();
-  if (!b) redirect(`/admin/transaksi/${kode}?error=Booking%20tidak%20ditemukan`);
+  if (!b) redirect(`/admin/transaksi/${kode}?error=Booking%20tidak%20ditemukan${navSuffix(formData)}`);
   const bb = b as unknown as {
     sesi_id: string;
     tanggal: string;
@@ -56,7 +62,7 @@ export async function simpanDetailTransaksi(formData: FormData) {
       .in("payment.status_bayar", ["dp_paid", "lunas"])
       .neq("id", bookingId);
     if ((lain ?? []).length > 0) {
-      redirect(`/admin/transaksi/${kode}?error=Sesi%20sudah%20terisi%20booking%20lain%20di%20layanan%20ini`);
+      redirect(`/admin/transaksi/${kode}?error=Sesi%20sudah%20terisi%20booking%20lain%20di%20layanan%20ini${navSuffix(formData)}`);
     }
   }
 
@@ -67,7 +73,7 @@ export async function simpanDetailTransaksi(formData: FormData) {
 
   if (status === "lunas") {
     const { error } = await admin.rpc("set_payment_lunas", { p_payment_id: paymentId, p_admin: me.id });
-    if (error) redirect(`/admin/transaksi/${kode}?error=${encodeURIComponent(error.message)}`);
+    if (error) redirect(`/admin/transaksi/${kode}?error=${encodeURIComponent(error.message)}${navSuffix(formData)}`);
   } else if (status === "dp_paid") {
     await admin.from("payment").update({ status_bayar: "dp_paid", dibayar_at: new Date().toISOString(), dicatat_oleh: me.id }).eq("id", paymentId);
     await admin.from("booking").update({ status_booking: "confirmed" }).eq("id", bookingId);
@@ -78,7 +84,7 @@ export async function simpanDetailTransaksi(formData: FormData) {
 
   revalidatePath(`/admin/transaksi/${kode}`);
   revalidatePath("/admin/transaksi");
-  redirect(`/admin/transaksi/${kode}?ok=1`);
+  redirect(`/admin/transaksi/${kode}?ok=1${navSuffix(formData)}`);
 }
 
 /** Atur status pengerjaan foto (boleh dikosongkan -> belum mulai / NULL). */
@@ -91,7 +97,7 @@ export async function updateStatusPengerjaan(formData: FormData) {
   const admin = createAdminClient();
   await admin.from("booking").update({ status_pengerjaan: nilai }).eq("id", bookingId);
   revalidatePath(`/admin/transaksi/${kode}`);
-  redirect(`/admin/transaksi/${kode}?ok=1`);
+  redirect(`/admin/transaksi/${kode}?ok=1${navSuffix(formData)}`);
 }
 
 /** Reschedule: ubah paket/tanggal/sesi dengan validasi ketersediaan sesi (kapasitas per layanan). */
@@ -106,7 +112,7 @@ export async function rescheduleBooking(formData: FormData) {
 
   const tersedia = await getSesiTersedia(packageId, tanggal);
   const sesi = tersedia.find((s) => s.id === sesiId);
-  if (!sesi) redirect(`/admin/transaksi/${kode}?error=Sesi%20tujuan%20tidak%20tersedia`);
+  if (!sesi) redirect(`/admin/transaksi/${kode}?error=Sesi%20tujuan%20tidak%20tersedia${navSuffix(formData)}`);
 
   await admin
     .from("booking")
@@ -115,5 +121,5 @@ export async function rescheduleBooking(formData: FormData) {
 
   revalidatePath(`/admin/transaksi/${kode}`);
   revalidatePath("/admin/transaksi");
-  redirect(`/admin/transaksi/${kode}?ok=1`);
+  redirect(`/admin/transaksi/${kode}?ok=1${navSuffix(formData)}`);
 }

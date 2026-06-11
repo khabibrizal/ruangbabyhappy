@@ -8,6 +8,7 @@ export default function AdminHome() {
       <div className="mt-4 flex flex-wrap gap-3">
         <Link href="/admin/transaksi" className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-bold text-white">Transaksi</Link>
         <Link href="/admin/laporan" className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-bold text-white">Laporan</Link>
+        <Link href="/admin/schedule" className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-bold text-white">Jadwal</Link>
         <Link href="/admin/master" className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700">Master Data</Link>
       </div>
       <form action="/logout" method="post" className="mt-6">

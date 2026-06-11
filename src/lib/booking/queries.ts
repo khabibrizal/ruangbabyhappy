@@ -177,3 +177,42 @@ export async function getDetailTransaksi(kode: string): Promise<DetailTransaksi 
   }
   return { ...row, bukti_signed_url };
 }
+
+export type JadwalItem = {
+  kode_booking: string;
+  tanggal: string;
+  jam_mulai: string;
+  sesi_nama: string;
+  nama: string;
+  status_bayar: string;
+};
+
+/** Booking dalam satu bulan ("YYYY-MM") untuk kalender admin (semua status). */
+export async function listJadwalBulan(bulan: string): Promise<JadwalItem[]> {
+  const admin = createAdminClient();
+  const [y, m] = bulan.split("-").map(Number);
+  const hariTerakhir = new Date(y, m, 0).getDate();
+  const dari = `${bulan}-01`;
+  const sampai = `${bulan}-${String(hariTerakhir).padStart(2, "0")}`;
+
+  const { data } = await admin
+    .from("booking")
+    .select("kode_booking, tanggal, jam_mulai, sesi:sesi_id(nama), profile:customer_profile_id(nama), payment(status_bayar)")
+    .gte("tanggal", dari)
+    .lte("tanggal", sampai)
+    .order("jam_mulai", { ascending: true });
+
+  const rows = (data as unknown as {
+    kode_booking: string; tanggal: string; jam_mulai: string;
+    sesi: { nama: string } | null; profile: { nama: string | null } | null; payment: { status_bayar: string } | null;
+  }[]) ?? [];
+
+  return rows.map((r) => ({
+    kode_booking: r.kode_booking,
+    tanggal: r.tanggal,
+    jam_mulai: r.jam_mulai,
+    sesi_nama: r.sesi?.nama ?? "",
+    nama: r.profile?.nama ?? "Member",
+    status_bayar: r.payment?.status_bayar ?? "unpaid",
+  }));
+}

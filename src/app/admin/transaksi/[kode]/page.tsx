@@ -15,12 +15,16 @@ export default async function DetailTransaksiPage({
   params, searchParams,
 }: {
   params: Promise<{ kode: string }>;
-  searchParams: Promise<{ error?: string; ok?: string }>;
+  searchParams: Promise<{ error?: string; ok?: string; ref?: string; bulan?: string }>;
 }) {
   const { kode } = await params;
-  const { error, ok } = await searchParams;
+  const { error, ok, ref, bulan } = await searchParams;
   const d = await getDetailTransaksi(kode);
   if (!d) notFound();
+
+  const dariJadwal = ref === "jadwal";
+  const backHref = dariJadwal ? `/admin/schedule${bulan ? `?bulan=${bulan}` : ""}` : "/admin/transaksi";
+  const backLabel = dariJadwal ? "← Jadwal" : "← Transaksi";
 
   const [paket, sesi] = await Promise.all([listPaket(), listSesi()]);
   const pay = d.payment;
@@ -37,7 +41,7 @@ export default async function DetailTransaksiPage({
     <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-slate-800">Detail Transaksi</h1>
-        <Link href="/admin/transaksi" className="text-sm text-slate-500 underline">← Transaksi</Link>
+        <Link href={backHref} className="text-sm text-slate-500 underline">{backLabel}</Link>
       </div>
 
       {ok && <p className="mt-3 rounded border border-green-300 bg-green-50 p-2 text-sm text-green-700">Perubahan tersimpan.</p>}
@@ -72,6 +76,8 @@ export default async function DetailTransaksiPage({
         <input type="hidden" name="bookingId" value={d.id} />
         <input type="hidden" name="paymentId" value={pay?.id ?? ""} />
         <input type="hidden" name="kode" value={d.kode_booking} />
+        {dariJadwal && <input type="hidden" name="ref" value="jadwal" />}
+        {dariJadwal && bulan && <input type="hidden" name="bulan" value={bulan} />}
         <div className="mt-3 grid grid-cols-2 gap-3">
           <label className="block text-sm">Ongkos (Rp)<input type="number" name="ongkos" defaultValue={ongkos} min={0} className={inp} /></label>
           <label className="block text-sm">Diskon (Rp)<input type="number" name="diskon" defaultValue={diskon} min={0} className={inp} /></label>
@@ -90,6 +96,8 @@ export default async function DetailTransaksiPage({
         <h2 className="font-semibold text-slate-700">Status Pengerjaan</h2>
         <input type="hidden" name="bookingId" value={d.id} />
         <input type="hidden" name="kode" value={d.kode_booking} />
+        {dariJadwal && <input type="hidden" name="ref" value="jadwal" />}
+        {dariJadwal && bulan && <input type="hidden" name="bulan" value={bulan} />}
         <select name="status_pengerjaan" defaultValue={curTahap} className={inp}>
           <option value="">Belum mulai</option>
           {TAHAP_PENGERJAAN.map((t) => <option key={t} value={t}>{LABEL_PENGERJAAN[t]}</option>)}
@@ -102,6 +110,8 @@ export default async function DetailTransaksiPage({
         <h2 className="font-semibold text-slate-700">Reschedule</h2>
         <input type="hidden" name="bookingId" value={d.id} />
         <input type="hidden" name="kode" value={d.kode_booking} />
+        {dariJadwal && <input type="hidden" name="ref" value="jadwal" />}
+        {dariJadwal && bulan && <input type="hidden" name="bulan" value={bulan} />}
         <label className="mt-3 block text-sm">Paket
           <select name="packageId" defaultValue={d.package_id} className={inp}>
             {paket.filter((p) => p.is_active).map((p) => <option key={p.id} value={p.id}>{p.nama}</option>)}
