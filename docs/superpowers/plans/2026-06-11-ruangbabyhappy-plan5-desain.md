@@ -1,3 +1,62 @@
+# Ruang Baby Happy — Plan 5: Desain "Baby Happy" (Tampilan Publik)
+
+> Presentasi saja (markup + style); TIDAK mengubah logika/alur. Pertahankan anchor smoke test: heading memuat "si kecil" + ada link "Lihat Paket".
+
+**Goal:** Mempercantik halaman publik agar pastel & playful sesuai mockup: hero berhias orb, section **Cara Booking** 3 langkah, kartu paket per layanan dengan aksen warna, dan **Footer** dengan peta klik→rute + IG + WhatsApp + alamat.
+
+**Scope:** `src/app/globals.css` (+utilities), `src/components/public/Footer.tsx` (rewrite), `src/app/page.tsx` (rewrite landing). Auth/booking/konfirmasi sudah bertema (tak disentuh). Admin/member tetap terang-fungsional.
+
+**Prasyarat:** Plan 6 selesai (commit ...3a982db).
+
+---
+
+## Task 1: Utilities globals + Footer
+
+- [ ] **Step 1: Tambah utilities di akhir `src/app/globals.css`**
+
+```css
+/* Orb dekoratif (lingkaran blur lembut di hero) */
+.orb { position: absolute; border-radius: 9999px; filter: blur(40px); opacity: 0.45; pointer-events: none; }
+.glow-pink { box-shadow: 0 20px 60px -20px rgba(236, 72, 153, 0.45); }
+```
+
+- [ ] **Step 2: Ganti seluruh `src/components/public/Footer.tsx`**
+
+```tsx
+import { brand } from "@/lib/brand";
+import { normalisasiWa } from "@/lib/booking/waLink";
+
+export default function Footer() {
+  const wa = normalisasiWa(process.env.NEXT_PUBLIC_ADMIN_WA ?? "");
+  return (
+    <footer className="mt-auto bg-white px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-5xl">
+        <h2 className="font-display text-xl font-extrabold">Kunjungi Kami 📍</h2>
+        <div className="relative mt-3 overflow-hidden rounded-3xl ring-1 ring-black/10">
+          <iframe src={brand.mapsEmbed} className="pointer-events-none h-48 w-full" loading="lazy" title="Peta lokasi" />
+          <a href={brand.mapsDir} target="_blank" rel="noreferrer" className="absolute inset-0" aria-label="Buka rute ke lokasi" />
+        </div>
+        <p className="mt-3 text-sm font-semibold text-foreground/70">{brand.alamat}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <a href={brand.igUrl} target="_blank" rel="noreferrer" className="rounded-full bg-pink-50 px-4 py-2 text-sm font-bold text-pink-600 ring-1 ring-pink-200">📷 @{brand.ig}</a>
+          {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className="rounded-full bg-green-50 px-4 py-2 text-sm font-bold text-green-600 ring-1 ring-green-200">💬 WhatsApp</a>}
+        </div>
+        <p className="mt-6 text-xs text-foreground/40">© 2026 {brand.nama} · {brand.tagline}</p>
+      </div>
+    </footer>
+  );
+}
+```
+
+- [ ] **Step 3: Commit** — `git add src/app/globals.css src/components/public/Footer.tsx && git commit -m "design(plan5): utilities orb + Footer (peta klik-rute, IG, WA)"`
+
+---
+
+## Task 2: Landing redesign
+
+- [ ] **Step 1: Ganti seluruh `src/app/page.tsx`** (hero berhias + Cara Booking + kartu paket beraksen; pertahankan "si kecil" & "Lihat Paket")
+
+```tsx
 import Link from "next/link";
 import PublicShell from "@/components/public/PublicShell";
 import { brand } from "@/lib/brand";
@@ -9,10 +68,7 @@ import GalleryStrip from "@/components/public/GalleryStrip";
 export const dynamic = "force-dynamic";
 
 const AKSEN: Record<string, string> = {
-  newborn: "text-pink-500",
-  cakesmash: "text-orange-500",
-  maternity: "text-emerald-500",
-  sitter: "text-sky-500",
+  newborn: "text-pink-500", cakesmash: "text-orange-500", maternity: "text-emerald-500", sitter: "text-sky-500",
 };
 
 const LANGKAH = [
@@ -28,8 +84,8 @@ export default async function HomePage() {
       <main>
         {/* Hero */}
         <section className="grad-soft relative overflow-hidden">
-          <div className="orb -left-10 top-0 h-40 w-40 bg-pink-300" />
-          <div className="orb -right-8 bottom-0 h-44 w-44 bg-emerald-200" />
+          <div className="orb -left-10 top-0 h-40 w-40 bg-babypink" />
+          <div className="orb -right-8 bottom-0 h-44 w-44 bg-babymint" />
           <div className="relative mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
             <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-bold shadow-sm">
               📷 Baby &amp; Kids Photo · {brand.kota}
@@ -93,3 +149,19 @@ export default async function HomePage() {
     </PublicShell>
   );
 }
+```
+
+> Catatan: `bg-babypink`/`bg-babymint` sudah terdefinisi di `tailwind.config`/globals (Plan 1). Bila warna orb tak muncul, ganti ke `bg-pink-300`/`bg-emerald-200`.
+
+- [ ] **Step 2: Commit** — `git add src/app/page.tsx && git commit -m "design(plan5): landing hero berhias + Cara Booking + kartu paket beraksen"`
+
+---
+
+## Task 3: Verifikasi
+- [ ] Build hijau (`npm run build`, ulangi bila Turbopack timeout).
+- [ ] E2E `npm run test:e2e -- smoke plan6` hijau (heading "si kecil" + link "Lihat Paket" + navbar/menu tetap).
+
+## Self-Review
+- Tema pastel publik diperkaya (hero orbs, Cara Booking, kartu beraksen, Footer peta-rute+IG+WA) tanpa ubah logika ✓.
+- Anchor smoke dipertahankan ("si kecil", "Lihat Paket") ✓.
+- Brand placeholder (alamat/koordinat/IG) tetap — user isi nilai final nanti ✓.

@@ -34,3 +34,15 @@ body {
 .font-display {
   font-family: var(--font-baloo), cursive;
 }
+
+/* Orb dekoratif (lingkaran blur lembut di hero) */
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(40px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.glow-pink {
+  box-shadow: 0 20px 60px -20px rgba(236, 72, 153, 0.45);
+}
