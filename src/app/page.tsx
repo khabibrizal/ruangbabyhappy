@@ -5,8 +5,17 @@ import { btnGrad, btnOutline } from "@/components/ui/buttons";
 import { getLayananDenganPaket } from "@/lib/catalog/queries";
 import { formatRupiah } from "@/lib/format/rupiah";
 import GalleryStrip from "@/components/public/GalleryStrip";
+import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo/config";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: `Ruang Baby Happy — Foto Newborn, Cakesmash & Maternity ${brand.kota}`,
+  description:
+    `Studio foto bayi & anak di ${brand.kota}: newborn, cakesmash, maternity, sitter. Bisa home service. Booking online mudah.`,
+  path: "/",
+});
 
 const AKSEN: Record<string, string> = {
   newborn: "text-pink-500",
