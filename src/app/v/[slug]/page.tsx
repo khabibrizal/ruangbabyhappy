@@ -2,8 +2,27 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getVendorBySlug } from "@/lib/vendor/queries";
 import { formatRupiah } from "@/lib/format/rupiah";
+import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo/config";
+import { brand } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getVendorBySlug(slug);
+  if (!data) return { title: "Vendor tidak ditemukan — Ruang Baby Happy" };
+  const { vendor } = data;
+  return buildMetadata({
+    title: `${vendor.nama}${vendor.tagline ? ` — ${vendor.tagline}` : ""}`,
+    description: vendor.tagline ?? `${vendor.nama} — foto profesional di ${brand.kota}.`,
+    path: `/v/${slug}`,
+  });
+}
 
 export default async function VendorPage({
   params,
