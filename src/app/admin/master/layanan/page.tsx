@@ -18,6 +18,9 @@ export default async function MasterLayananPage() {
         <input name="nama" placeholder="Nama layanan" className={`col-span-2 ${inp}`} required />
         <input name="admin_wa" placeholder="No WA admin (62…)" className={inp} required />
         <input name="urutan" type="number" placeholder="Urutan" className={inp} defaultValue={0} />
+        <input name="bank" placeholder="Bank (mis. BCA)" className={inp} />
+        <input name="no_rek" placeholder="No Rekening" className={inp} />
+        <input name="atas_nama" placeholder="Atas Nama" className={`col-span-2 ${inp}`} />
         <button className="col-span-2 h-11 rounded bg-slate-800 px-4 text-white">Tambah Layanan</button>
       </form>
 
@@ -29,6 +32,9 @@ export default async function MasterLayananPage() {
               <input name="nama" defaultValue={r.nama} className={`col-span-2 ${inp}`} required />
               <input name="admin_wa" defaultValue={r.admin_wa} className={inp} required />
               <input name="urutan" type="number" defaultValue={r.urutan} className={inp} />
+              <input name="bank" defaultValue={r.bank ?? ""} placeholder="Bank (mis. BCA)" className={inp} />
+              <input name="no_rek" defaultValue={r.no_rek ?? ""} placeholder="No Rekening" className={inp} />
+              <input name="atas_nama" defaultValue={r.atas_nama ?? ""} placeholder="Atas Nama" className={`col-span-2 ${inp}`} />
               <div className="col-span-2 flex items-center gap-2">
                 <button className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</button>
                 {!r.is_active && <span className="text-xs text-slate-400">(nonaktif)</span>}

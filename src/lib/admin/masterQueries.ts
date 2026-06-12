@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type LayananRow = { id: string; nama: string; admin_wa: string; urutan: number; is_active: boolean };
+export type LayananRow = { id: string; nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null; urutan: number; is_active: boolean };
 export type PaketRow = {
   id: string; layanan_id: string; nama: string; deskripsi: string | null;
   harga: number; diskon_returning: number; dp_persen: number; durasi_menit: number; is_active: boolean;
@@ -13,7 +13,7 @@ export async function listLayanan(): Promise<LayananRow[]> {
   const admin = createAdminClient();
   const { data } = await admin
     .from("layanan")
-    .select("id, nama, admin_wa, urutan, is_active")
+    .select("id, nama, admin_wa, bank, no_rek, atas_nama, urutan, is_active")
     .order("urutan");
   return (data as LayananRow[]) ?? [];
 }

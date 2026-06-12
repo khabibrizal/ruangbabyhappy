@@ -17,6 +17,9 @@ export async function buatLayanan(formData: FormData) {
   await admin.from("layanan").insert({
     nama: String(formData.get("nama") ?? "").trim(),
     admin_wa: String(formData.get("admin_wa") ?? "").trim(),
+    bank: String(formData.get("bank") ?? "").trim() || null,
+    no_rek: String(formData.get("no_rek") ?? "").trim() || null,
+    atas_nama: String(formData.get("atas_nama") ?? "").trim() || null,
     urutan: Number(formData.get("urutan") ?? 0),
   });
   revalidatePath("/admin/master/layanan");
@@ -26,6 +29,9 @@ export async function updateLayanan(formData: FormData) {
   await admin.from("layanan").update({
     nama: String(formData.get("nama") ?? "").trim(),
     admin_wa: String(formData.get("admin_wa") ?? "").trim(),
+    bank: String(formData.get("bank") ?? "").trim() || null,
+    no_rek: String(formData.get("no_rek") ?? "").trim() || null,
+    atas_nama: String(formData.get("atas_nama") ?? "").trim() || null,
     urutan: Number(formData.get("urutan") ?? 0),
   }).eq("id", String(formData.get("id")));
   revalidatePath("/admin/master/layanan");
