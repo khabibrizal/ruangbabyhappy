@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { buatTransaksiAdmin } from "@/lib/admin/createTransaksiAdmin";
-import { cariCustomer, type CustomerHit } from "@/lib/admin/customerSearch";
+import { cariCustomer, anakCustomer, type CustomerHit } from "@/lib/admin/customerSearch";
 import { formatRupiah } from "@/lib/format/rupiah";
 import { hitungDp } from "@/lib/booking/hitung";
 
@@ -9,6 +9,7 @@ type Paket = { id: string; nama: string; harga: number; dp_persen: number; layan
 type Sesi = { id: string; nama: string; jam_mulai: string };
 type Zona = { id: string; nama: string; keterangan: string | null; biaya: number };
 type Item = { packageId: string; qty: number };
+type AnakOpsi = { nama: string; bb: number; jk: string };
 
 const inp = "rounded-lg border border-slate-300 p-2 text-sm";
 
@@ -22,6 +23,10 @@ export default function FormTransaksiBaru({ paket, sesi, zona }: { paket: Paket[
   const [hits, setHits] = useState<CustomerHit[] | null>(null);
   const [cust, setCust] = useState<CustomerHit | null>(null);
   const [baru, setBaru] = useState(false);
+  const [anakList, setAnakList] = useState<AnakOpsi[]>([]);
+  const [anakNama, setAnakNama] = useState("");
+  const [anakBb, setAnakBb] = useState("");
+  const [anakJk, setAnakJk] = useState("");
 
   const [items, setItems] = useState<Item[]>([{ packageId: paket[0]?.id ?? "", qty: 1 }]);
   const [lokasi, setLokasi] = useState<"studio" | "home">("studio");
@@ -55,7 +60,7 @@ export default function FormTransaksiBaru({ paket, sesi, zona }: { paket: Paket[
             </div>
             {hits && hits.length === 0 && <p className="mt-2 text-sm text-slate-500">Tidak ditemukan. <button type="button" onClick={() => setBaru(true)} className="text-pink-600 underline">Buat customer baru</button></p>}
             {hits && hits.map((h) => (
-              <button type="button" key={h.id} onClick={() => { setCust(h); setHits(null); }}
+              <button type="button" key={h.id} onClick={async () => { setCust(h); setHits(null); setAnakList(await anakCustomer(h.id)); }}
                 className={`mt-2 block w-full rounded-lg border p-2 text-left text-sm ${cust?.id === h.id ? "border-pink-400 bg-pink-50" : "border-slate-200"}`}>
                 <b>{h.nama ?? "-"}</b> · {h.no_wa ?? "-"} · {h.email ?? "-"}
               </button>
@@ -78,10 +83,22 @@ export default function FormTransaksiBaru({ paket, sesi, zona }: { paket: Paket[
       {/* Anak */}
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="font-semibold text-slate-700">Data Anak</h2>
-        <input name="anak_nama" placeholder="Nama anak" className={`mt-2 block w-full ${inp}`} required />
+        {anakList.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {anakList.map((a, i) => (
+              <button key={i} type="button" onClick={() => { setAnakNama(a.nama); setAnakBb(String(a.bb)); setAnakJk(a.jk); }}
+                className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${anakNama === a.nama ? "bg-pink-500 text-white ring-transparent" : "bg-white ring-slate-200"}`}>
+                {a.nama} · {a.bb}kg · {a.jk}
+              </button>
+            ))}
+            <button type="button" onClick={() => { setAnakNama(""); setAnakBb(""); setAnakJk(""); }}
+              className="rounded-full px-3 py-1 text-xs font-bold ring-1 bg-white ring-pink-200 text-pink-600">+ Anak baru</button>
+          </div>
+        )}
+        <input name="anak_nama" value={anakNama} onChange={(e) => setAnakNama(e.target.value)} placeholder="Nama anak" className={`mt-2 block w-full ${inp}`} required />
         <div className="mt-2 grid grid-cols-2 gap-2">
-          <input name="anak_bb" type="number" step="0.1" min="0" placeholder="BB (kg)" className={inp} required />
-          <select name="anak_jk" defaultValue="" className={inp} required>
+          <input name="anak_bb" type="number" step="0.1" min="0" value={anakBb} onChange={(e) => setAnakBb(e.target.value)} placeholder="BB (kg)" className={inp} required />
+          <select name="anak_jk" value={anakJk} onChange={(e) => setAnakJk(e.target.value)} className={inp} required>
             <option value="" disabled>Jenis kelamin</option><option value="L">Laki-laki</option><option value="P">Perempuan</option>
           </select>
         </div>

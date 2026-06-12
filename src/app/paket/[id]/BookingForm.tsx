@@ -8,6 +8,7 @@ import { hitungDiskon, hitungTagihan, hitungDp } from "@/lib/booking/hitung";
 
 type SesiOpsi = { id: string; nama: string; jam_mulai: string };
 type ZonaOpsi = { id: string; nama: string; keterangan: string | null; biaya: number };
+type AnakOpsi = { nama: string; bb: number; jk: string };
 
 const inp = "rounded-xl bg-white px-3 py-2.5 text-sm ring-1 ring-black/10";
 
@@ -18,6 +19,7 @@ export default function BookingForm({
   diskonReturning,
   returning,
   zona,
+  anak,
 }: {
   packageId: string;
   harga: number;
@@ -25,6 +27,7 @@ export default function BookingForm({
   diskonReturning: number;
   returning: boolean;
   zona: ZonaOpsi[];
+  anak: AnakOpsi[];
 }) {
   const [tanggal, setTanggal] = useState("");
   const [sesiList, setSesiList] = useState<SesiOpsi[] | null>(null);
@@ -32,6 +35,10 @@ export default function BookingForm({
   const [sesiId, setSesiId] = useState("");
   const [lokasi, setLokasi] = useState<"studio" | "home">("home");
   const [zonaId, setZonaId] = useState("");
+  // Data anak: prefill bila pilih anak tersimpan; tetap bisa isi anak baru.
+  const [anakNama, setAnakNama] = useState("");
+  const [anakBb, setAnakBb] = useState("");
+  const [anakJk, setAnakJk] = useState("");
 
   async function cekSesi(tgl: string) {
     setTanggal(tgl);
@@ -88,15 +95,29 @@ export default function BookingForm({
           {/* Data anak */}
           <div className="rounded-2xl bg-white/60 p-3">
             <div className="text-sm font-bold">🍼 Data Anak</div>
-            <input name="anak_nama" placeholder="Nama anak" className={`mt-2 block w-full ${inp}`} required />
+            {anak.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {anak.map((a, i) => (
+                  <button key={i} type="button"
+                    onClick={() => { setAnakNama(a.nama); setAnakBb(String(a.bb)); setAnakJk(a.jk); }}
+                    className={`rounded-full px-3 py-1 text-xs font-bold ring-1 transition ${anakNama === a.nama ? "bg-grad text-white ring-transparent" : "bg-white ring-black/10"}`}>
+                    {a.nama} · {a.bb}kg · {a.jk}
+                  </button>
+                ))}
+                <button type="button" onClick={() => { setAnakNama(""); setAnakBb(""); setAnakJk(""); }}
+                  className="rounded-full px-3 py-1 text-xs font-bold ring-1 bg-white ring-pink-200 text-pink-600">+ Anak baru</button>
+              </div>
+            )}
+            <input name="anak_nama" value={anakNama} onChange={(e) => setAnakNama(e.target.value)} placeholder="Nama anak" className={`mt-2 block w-full ${inp}`} required />
             <div className="mt-2 grid grid-cols-2 gap-2">
-              <input name="anak_bb" type="number" step="0.1" min="0" placeholder="Berat badan (kg)" className={inp} required />
-              <select name="anak_jk" className={inp} required defaultValue="">
+              <input name="anak_bb" type="number" step="0.1" min="0" value={anakBb} onChange={(e) => setAnakBb(e.target.value)} placeholder="Berat badan (kg)" className={inp} required />
+              <select name="anak_jk" value={anakJk} onChange={(e) => setAnakJk(e.target.value)} className={inp} required>
                 <option value="" disabled>Jenis kelamin</option>
                 <option value="L">Laki-laki</option>
                 <option value="P">Perempuan</option>
               </select>
             </div>
+            {anak.length > 0 && <p className="mt-1 text-xs text-foreground/45">Pilih anak tersimpan atau "Anak baru". BB bisa diperbarui.</p>}
           </div>
 
           {/* Lokasi */}

@@ -4,6 +4,7 @@ import PublicShell from "@/components/public/PublicShell";
 import { getPackageById, getZonaAktif } from "@/lib/catalog/queries";
 import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAnakByProfile } from "@/lib/member/anak";
 import { formatRupiah } from "@/lib/format/rupiah";
 import BookingForm from "./BookingForm";
 
@@ -33,6 +34,9 @@ export default async function PaketDetailPage({
     .eq("payment.status_bayar", "lunas");
   const returning = (count ?? 0) > 0;
 
+  // Anak yang pernah diinput member (untuk dipilih ulang); tetap bisa tambah anak baru.
+  const anak = await getAnakByProfile(profile!.id);
+
   return (
     <PublicShell>
       <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
@@ -52,6 +56,7 @@ export default async function PaketDetailPage({
           diskonReturning={paket.diskon_returning}
           returning={returning}
           zona={zona}
+          anak={anak}
         />
       </main>
     </PublicShell>

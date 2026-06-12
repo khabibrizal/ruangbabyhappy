@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
+import { getAnakByProfile, type AnakOpsi } from "@/lib/member/anak";
 
 export type CustomerHit = { id: string; nama: string | null; no_wa: string | null; email: string | null; alamat: string | null };
 
@@ -19,4 +20,11 @@ export async function cariCustomer(query: string): Promise<CustomerHit[]> {
     .or(`nama.ilike.${like},no_wa.ilike.${like}`)
     .limit(10);
   return (data as CustomerHit[]) ?? [];
+}
+
+/** Daftar anak milik customer terpilih (utk dipilih ulang di form admin). */
+export async function anakCustomer(profileId: string): Promise<AnakOpsi[]> {
+  const me = await getCurrentProfile();
+  if (me?.role !== "admin") return [];
+  return getAnakByProfile(profileId);
 }
