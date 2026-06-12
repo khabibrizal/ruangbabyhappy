@@ -15,6 +15,13 @@ export const brand = {
   bank: "BCA",
   noRek: "0000000000",
   atasNama: "Ruang Baby Happy",
+  // --- Data untuk JSON-LD / SEO lokal ---
+  // TODO(user): isi alamat jalan asli (untuk schema PostalAddress)
+  alamatLengkap: "Sidoarjo, Jawa Timur",
+  // TODO(user): isi nomor WA/telepon bisnis asli, format E.164
+  telepon: "+6282233684933",
+  // Koordinat studio (sudah real, diambil dari mapsEmbed)
+  geo: { lat: -7.368132, lng: 112.75998 },
 } as const;
 
 // Foto galeri diisi via master Galeri (Plan 4/5) / folder public; kosong di awal.
