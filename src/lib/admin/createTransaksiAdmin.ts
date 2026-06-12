@@ -44,8 +44,9 @@ export async function buatTransaksiAdmin(formData: FormData) {
 
   // 3. Harga paket (snapshot) + paket primary.
   const ids = items.map((i) => i.packageId);
-  const { data: pkgs } = await admin.from("package").select("id, harga, dp_persen").in("id", ids);
-  const pkgMap = new Map((pkgs ?? []).map((p) => [p.id as string, p as { id: string; harga: number; dp_persen: number }]));
+  const { data: pkgsData } = await admin.from("package").select("id, harga, dp_persen").in("id", ids);
+  const pkgs = (pkgsData ?? []) as unknown as { id: string; harga: number; dp_persen: number }[];
+  const pkgMap = new Map(pkgs.map((p) => [p.id, p]));
   if (pkgMap.size === 0) back("Paket tidak ditemukan");
   const primary = pkgMap.get(items[0].packageId);
   const total = items.reduce((sum, it) => sum + (pkgMap.get(it.packageId)?.harga ?? 0) * it.qty, 0);
@@ -54,8 +55,9 @@ export async function buatTransaksiAdmin(formData: FormData) {
   const tanggal = String(formData.get("tanggal") ?? "");
   const sesiId = String(formData.get("sesiId") ?? "");
   if (!tanggal || !sesiId) back("Tanggal & sesi wajib");
-  const { data: sesi } = await admin.from("sesi").select("jam_mulai").eq("id", sesiId).single();
-  if (!sesi) back("Sesi tidak ditemukan");
+  const { data: sesiData } = await admin.from("sesi").select("jam_mulai").eq("id", sesiId).single();
+  if (!sesiData) back("Sesi tidak ditemukan");
+  const sesi = sesiData as unknown as { jam_mulai: string };
 
   const lokasi = String(formData.get("lokasi_sesi") ?? "studio");
   const zonaId = String(formData.get("zonaId") ?? "").trim();
