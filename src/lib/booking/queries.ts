@@ -17,6 +17,7 @@ export type BookingKonfirmasi = {
   layanan_bank: string | null;
   layanan_no_rek: string | null;
   layanan_atas_nama: string | null;
+  vendor_nama: string | null;
   payment: { status_bayar: string; total: number; ongkos: number; diskon: number; dp_amount: number | null } | null;
 };
 
@@ -28,7 +29,7 @@ export async function getBookingByKode(kode: string): Promise<BookingKonfirmasi 
     .select(
       "kode_booking, tanggal, jam_mulai, anak_nama, anak_bb, anak_jk, lokasi_sesi, alamat_sesi, " +
         "sesi:sesi_id(nama), zona:zona_id(nama), " +
-        "package:package_id(nama, durasi_menit, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama)), " +
+        "package:package_id(nama, durasi_menit, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama, vendor:vendor_id(nama))), " +
         "payment(status_bayar, total, ongkos, diskon, dp_amount)",
     )
     .eq("kode_booking", kode)
@@ -46,7 +47,7 @@ export async function getBookingByKode(kode: string): Promise<BookingKonfirmasi 
     alamat_sesi: string | null;
     sesi: { nama: string } | null;
     zona: { nama: string } | null;
-    package: { nama: string; durasi_menit: number; layanan: { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null } | null } | null;
+    package: { nama: string; durasi_menit: number; layanan: { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null; vendor: { nama: string } | null } | null } | null;
     payment: BookingKonfirmasi["payment"];
   };
   const pkg = d.package;
@@ -68,6 +69,7 @@ export async function getBookingByKode(kode: string): Promise<BookingKonfirmasi 
     layanan_bank: pkg?.layanan?.bank ?? null,
     layanan_no_rek: pkg?.layanan?.no_rek ?? null,
     layanan_atas_nama: pkg?.layanan?.atas_nama ?? null,
+    vendor_nama: pkg?.layanan?.vendor?.nama ?? null,
     payment: d.payment ?? null,
   };
 }
@@ -153,9 +155,13 @@ export type DetailTransaksi = {
   package_id: string;
   sesi: { nama: string } | null;
   zona: { nama: string } | null;
-  package: { nama: string; harga: number; durasi_menit: number; dp_persen: number; layanan_id: string; layanan: { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null } | null } | null;
+  package: { nama: string; harga: number; durasi_menit: number; dp_persen: number; layanan_id: string; layanan: { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null; vendor: { nama: string; tagline: string | null; ig: string | null; alamat: string | null } | null } | null } | null;
   payment: { id: string; status_bayar: string; total: number; ongkos: number; diskon: number; dp_amount: number | null; bukti_url: string | null } | null;
   profile: { nama: string | null; email: string | null; no_wa: string | null; alamat: string | null } | null;
+  vendor_nama: string | null;
+  vendor_tagline: string | null;
+  vendor_ig: string | null;
+  vendor_alamat: string | null;
   bukti_signed_url: string | null;
 };
 
@@ -167,14 +173,15 @@ export async function getDetailTransaksi(kode: string): Promise<DetailTransaksi 
       "id, kode_booking, tanggal, jam_mulai, status_booking, status_pengerjaan, " +
         "anak_nama, anak_bb, anak_jk, lokasi_sesi, alamat_sesi, drive_url, sesi_id, package_id, " +
         "sesi:sesi_id(nama), zona:zona_id(nama), " +
-        "package:package_id(nama, harga, durasi_menit, dp_persen, layanan_id, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama)), " +
+        "package:package_id(nama, harga, durasi_menit, dp_persen, layanan_id, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama, vendor:vendor_id(nama, tagline, ig, alamat))), " +
         "payment(id, status_bayar, total, ongkos, diskon, dp_amount, bukti_url), " +
         "profile:customer_profile_id(nama, email, no_wa, alamat)",
     )
     .eq("kode_booking", kode)
     .maybeSingle();
   if (!data) return null;
-  const row = data as unknown as Omit<DetailTransaksi, "bukti_signed_url">;
+  const row = data as unknown as Omit<DetailTransaksi, "bukti_signed_url" | "vendor_nama" | "vendor_tagline" | "vendor_ig" | "vendor_alamat">;
+  const ven = row.package?.layanan?.vendor ?? null;
 
   let bukti_signed_url: string | null = null;
   const path = row.payment?.bukti_url;
@@ -182,7 +189,14 @@ export async function getDetailTransaksi(kode: string): Promise<DetailTransaksi 
     const { data: signed } = await admin.storage.from("bukti-tf").createSignedUrl(path, 3600);
     bukti_signed_url = signed?.signedUrl ?? null;
   }
-  return { ...row, bukti_signed_url };
+  return {
+    ...row,
+    vendor_nama: ven?.nama ?? null,
+    vendor_tagline: ven?.tagline ?? null,
+    vendor_ig: ven?.ig ?? null,
+    vendor_alamat: ven?.alamat ?? null,
+    bukti_signed_url,
+  };
 }
 
 export type JadwalItem = {

@@ -25,6 +25,12 @@ export async function GET(_req: Request, { params }: { params: Promise<{ kode: s
   const noRek = lay?.no_rek || brand.noRek;
   const atasNama = lay?.atas_nama || brand.atasNama;
 
+  // Brand invoice = brand vendor (fallback ke brand global). Rekening tetap dari layanan.
+  const brandNama = d.vendor_nama || brand.nama;
+  const brandTagline = d.vendor_tagline || brand.tagline;
+  const brandIg = d.vendor_ig || brand.ig;
+  const brandAlamat = d.vendor_alamat || brand.alamat;
+
   const buffer = await renderToBuffer(
     InvoiceDocument({
       d: {
@@ -39,6 +45,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ kode: s
         sesi: d.sesi?.nama ?? "",
         total, ongkos, diskon, tagihan, dp,
         bank, noRek, atasNama,
+        brandNama, brandTagline, brandIg, brandAlamat,
         items: items.map((it) => ({ nama: it.nama, qty: it.qty, harga: it.harga })),
         sisa: status === "lunas" ? 0 : Math.max(0, tagihan - dp),
         status: LABEL[status] ?? status,

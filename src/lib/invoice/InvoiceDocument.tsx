@@ -1,6 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { formatRupiah } from "@/lib/format/rupiah";
-import { brand } from "@/lib/brand";
 
 export type InvoiceData = {
   kode: string; nama: string; noWa: string;
@@ -9,6 +8,7 @@ export type InvoiceData = {
   total: number; ongkos: number; diskon: number; tagihan: number; dp: number; sisa: number;
   status: string; tglCetak: string;
   bank: string; noRek: string; atasNama: string;
+  brandNama: string; brandTagline: string; brandIg: string; brandAlamat: string;
   items?: { nama: string; qty: number; harga: number }[];
 };
 
@@ -65,8 +65,8 @@ export function InvoiceDocument({ d }: { d: InvoiceData }) {
         {/* Header band */}
         <View style={s.band}>
           <View>
-            <Text style={s.brandName}>{brand.nama}</Text>
-            <Text style={s.tagline}>{brand.tagline}</Text>
+            <Text style={s.brandName}>{d.brandNama}</Text>
+            <Text style={s.tagline}>{d.brandTagline}</Text>
           </View>
           <View>
             <Text style={s.invLabel}>INVOICE</Text>
@@ -141,8 +141,8 @@ export function InvoiceDocument({ d }: { d: InvoiceData }) {
           </View>
 
           <Text style={s.foot}>
-            Terima kasih telah mempercayakan momen si kecil pada {brand.nama}{"\n"}
-            @{brand.ig} · {brand.alamat}
+            Terima kasih telah mempercayakan momen si kecil pada {d.brandNama}{"\n"}
+            @{d.brandIg} · {d.brandAlamat}
           </Text>
         </View>
       </Page>

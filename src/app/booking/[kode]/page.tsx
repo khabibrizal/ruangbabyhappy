@@ -34,6 +34,9 @@ export default async function KonfirmasiPage({
       <main className="grad-soft min-h-[70vh]">
         <div className="mx-auto w-full max-w-md px-4 py-12 sm:px-6">
           <h1 className="font-display text-2xl font-extrabold">Booking Diterima 🎉</h1>
+          {b.vendor_nama && (
+            <p className="text-sm font-semibold text-foreground/45">oleh {b.vendor_nama}</p>
+          )}
           <p className="mt-1 text-sm font-semibold text-foreground/60">
             Bukti transfer terkirim & menunggu verifikasi admin. Simpan kode ini.
           </p>
