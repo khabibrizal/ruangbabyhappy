@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getMyBookingDetail } from "@/lib/member/queries";
 import { buildWaLink } from "@/lib/booking/waLink";
 import { formatRupiah } from "@/lib/format/rupiah";
+import { indexTahap } from "@/lib/booking/statusPengerjaan";
 import Stepper from "../Stepper";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,9 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ k
       <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
         <div className="text-sm font-bold text-slate-600">Status Pengerjaan</div>
         <Stepper status={b.status_pengerjaan} />
+        {indexTahap(b.status_pengerjaan) >= 0 && b.drive_url && (
+          <a href={b.drive_url} target="_blank" rel="noreferrer" className="mt-3 block rounded-full bg-grad py-2.5 text-center text-sm font-bold text-white">Download Foto</a>
+        )}
       </div>
 
       <dl className="mt-4 grid grid-cols-2 gap-y-1.5 rounded-2xl border border-slate-200 bg-white p-4 text-sm font-semibold">
@@ -50,6 +54,12 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ k
         <dt className="text-slate-500">Sisa</dt><dd className="text-right">{formatRupiah(sisa)}</dd>
         <dt className="text-slate-500">Status bayar</dt><dd className="text-right">{LABEL[status] ?? status}</dd>
       </dl>
+
+      {b.package?.layanan?.bank && (
+        <p className="mt-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-600">
+          Transfer ke: <span className="font-bold">{b.package.layanan.bank} {b.package.layanan.no_rek}</span> a.n. {b.package.layanan.atas_nama}
+        </p>
+      )}
 
       <div className="mt-4 flex gap-2">
         <a href={`/invoice/${b.kode_booking}`} target="_blank" rel="noreferrer" className="flex-1 rounded-full bg-white py-2.5 text-center text-sm font-bold ring-1 ring-black/10">Invoice</a>

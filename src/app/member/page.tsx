@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
 import { getMyBookings } from "@/lib/member/queries";
 import { formatRupiah } from "@/lib/format/rupiah";
+import { indexTahap } from "@/lib/booking/statusPengerjaan";
 import Stepper from "./Stepper";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,9 @@ export default async function MemberPage() {
                 <div className="mt-3 flex gap-2 text-xs font-bold">
                   <Link href={`/member/${b.kode_booking}`} className="rounded-full bg-white px-3 py-1.5 ring-1 ring-black/10">Detail</Link>
                   <a href={`/invoice/${b.kode_booking}`} target="_blank" rel="noreferrer" className="rounded-full bg-white px-3 py-1.5 ring-1 ring-black/10">Invoice</a>
+                  {indexTahap(b.status_pengerjaan) >= 0 && b.drive_url && (
+                    <a href={b.drive_url} target="_blank" rel="noreferrer" className="rounded-full bg-grad px-3 py-1.5 text-white">Download Foto</a>
+                  )}
                 </div>
               </div>
             );
