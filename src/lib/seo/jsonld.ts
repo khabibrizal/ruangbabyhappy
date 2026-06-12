@@ -22,7 +22,8 @@ export function localBusiness() {
       latitude: brand.geo.lat,
       longitude: brand.geo.lng,
     },
-    sameAs: [brand.igUrl],
+    hasMap: brand.maps,
+    sameAs: [brand.igUrl, brand.maps],
   };
 }
 

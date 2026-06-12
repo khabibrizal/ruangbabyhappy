@@ -6,7 +6,8 @@ export const brand = {
   igUrl: "https://instagram.com/ruangbabyhappy",
   alamat: "Jl. Abdulrahman no 33 rt 13 rw 05 Payan Pabean Sedati Sidoarjo",
   kota: "Sidoarjo",
-  // Titik lokasi studio (dari https://maps.app.goo.gl/L9idTE82A7igrQW97)
+  // Link publik Google Maps/GBP studio (untuk JSON-LD hasMap & tombol arah)
+  maps: "https://maps.app.goo.gl/L9idTE82A7igrQW97",
   mapsEmbed: "https://maps.google.com/maps?q=-7.368132,112.759980&z=16&output=embed",
   // Rute TANPA origin -> Google otomatis pakai lokasi user (petunjuk arah dari lokasimu)
   mapsDir: "https://www.google.com/maps/dir/?api=1&destination=-7.368132,112.759980",
