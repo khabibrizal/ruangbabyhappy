@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type LayananRow = { id: string; nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null; urutan: number; is_active: boolean };
+export type VendorRow = { id: string; slug: string; nama: string; tagline: string | null; ig: string | null; alamat: string | null; is_default: boolean; butuh_anak: boolean; is_active: boolean };
+export type LayananRow = { id: string; nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null; urutan: number; vendor_id: string | null; is_active: boolean };
 export type PaketRow = {
   id: string; layanan_id: string; nama: string; deskripsi: string | null;
   harga: number; diskon_returning: number; dp_persen: number; durasi_menit: number; is_active: boolean;
@@ -9,11 +10,20 @@ export type SesiRow = { id: string; nama: string; jam_mulai: string; urutan: num
 export type ZonaRow = { id: string; nama: string; keterangan: string | null; biaya: number; urutan: number; is_active: boolean };
 export type BlackoutRow = { id: string; tanggal: string; keterangan: string | null };
 
+export async function listVendor(): Promise<VendorRow[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("vendor")
+    .select("id, slug, nama, tagline, ig, alamat, is_default, butuh_anak, is_active")
+    .order("created_at");
+  return (data as VendorRow[]) ?? [];
+}
+
 export async function listLayanan(): Promise<LayananRow[]> {
   const admin = createAdminClient();
   const { data } = await admin
     .from("layanan")
-    .select("id, nama, admin_wa, bank, no_rek, atas_nama, urutan, is_active")
+    .select("id, nama, admin_wa, bank, no_rek, atas_nama, urutan, vendor_id, is_active")
     .order("urutan");
   return (data as LayananRow[]) ?? [];
 }

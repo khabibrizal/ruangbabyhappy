@@ -11,6 +11,39 @@ async function guardAdmin() {
   return createAdminClient();
 }
 
+// ---- Vendor ----
+export async function buatVendor(formData: FormData) {
+  const admin = await guardAdmin();
+  await admin.from("vendor").insert({
+    nama: String(formData.get("nama") ?? "").trim(),
+    slug: String(formData.get("slug") ?? "").trim(),
+    tagline: String(formData.get("tagline") ?? "").trim() || null,
+    ig: String(formData.get("ig") ?? "").trim() || null,
+    alamat: String(formData.get("alamat") ?? "").trim() || null,
+    butuh_anak: String(formData.get("butuh_anak")) === "on",
+  });
+  revalidatePath("/admin/master/vendor");
+}
+export async function updateVendor(formData: FormData) {
+  const admin = await guardAdmin();
+  await admin.from("vendor").update({
+    nama: String(formData.get("nama") ?? "").trim(),
+    slug: String(formData.get("slug") ?? "").trim(),
+    tagline: String(formData.get("tagline") ?? "").trim() || null,
+    ig: String(formData.get("ig") ?? "").trim() || null,
+    alamat: String(formData.get("alamat") ?? "").trim() || null,
+    butuh_anak: String(formData.get("butuh_anak")) === "on",
+  }).eq("id", String(formData.get("id")));
+  revalidatePath("/admin/master/vendor");
+}
+export async function toggleVendor(formData: FormData) {
+  const admin = await guardAdmin();
+  await admin.from("vendor")
+    .update({ is_active: String(formData.get("aktif")) !== "true" })
+    .eq("id", String(formData.get("id")));
+  revalidatePath("/admin/master/vendor");
+}
+
 // ---- Layanan ----
 export async function buatLayanan(formData: FormData) {
   const admin = await guardAdmin();
@@ -21,6 +54,7 @@ export async function buatLayanan(formData: FormData) {
     no_rek: String(formData.get("no_rek") ?? "").trim() || null,
     atas_nama: String(formData.get("atas_nama") ?? "").trim() || null,
     urutan: Number(formData.get("urutan") ?? 0),
+    vendor_id: String(formData.get("vendor_id") ?? "").trim() || null,
   });
   revalidatePath("/admin/master/layanan");
 }
@@ -33,6 +67,7 @@ export async function updateLayanan(formData: FormData) {
     no_rek: String(formData.get("no_rek") ?? "").trim() || null,
     atas_nama: String(formData.get("atas_nama") ?? "").trim() || null,
     urutan: Number(formData.get("urutan") ?? 0),
+    vendor_id: String(formData.get("vendor_id") ?? "").trim() || null,
   }).eq("id", String(formData.get("id")));
   revalidatePath("/admin/master/layanan");
 }

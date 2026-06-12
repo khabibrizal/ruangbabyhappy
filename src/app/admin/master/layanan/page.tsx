@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { listLayanan } from "@/lib/admin/masterQueries";
+import { listLayanan, listVendor } from "@/lib/admin/masterQueries";
 import { buatLayanan, updateLayanan, toggleLayanan } from "@/lib/admin/masterActions";
 
 export const dynamic = "force-dynamic";
 const inp = "rounded border border-slate-300 p-2";
 
 export default async function MasterLayananPage() {
-  const rows = await listLayanan();
+  const [rows, vendor] = await Promise.all([listLayanan(), listVendor()]);
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
@@ -16,6 +16,10 @@ export default async function MasterLayananPage() {
 
       <form action={buatLayanan} className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-slate-200 bg-white p-4">
         <input name="nama" placeholder="Nama layanan" className={`col-span-2 ${inp}`} required />
+        <select name="vendor_id" className={`col-span-2 ${inp}`} defaultValue="">
+          <option value="">Vendor default</option>
+          {vendor.map((v) => <option key={v.id} value={v.id}>{v.nama}</option>)}
+        </select>
         <input name="admin_wa" placeholder="No WA admin (62…)" className={inp} required />
         <input name="urutan" type="number" placeholder="Urutan" className={inp} defaultValue={0} />
         <input name="bank" placeholder="Bank (mis. BCA)" className={inp} />
@@ -30,6 +34,10 @@ export default async function MasterLayananPage() {
             <form action={updateLayanan} className="grid grid-cols-2 gap-2">
               <input type="hidden" name="id" value={r.id} />
               <input name="nama" defaultValue={r.nama} className={`col-span-2 ${inp}`} required />
+              <select name="vendor_id" className={`col-span-2 ${inp}`} defaultValue={r.vendor_id ?? ""}>
+                <option value="">Vendor default</option>
+                {vendor.map((v) => <option key={v.id} value={v.id}>{v.nama}</option>)}
+              </select>
               <input name="admin_wa" defaultValue={r.admin_wa} className={inp} required />
               <input name="urutan" type="number" defaultValue={r.urutan} className={inp} />
               <input name="bank" defaultValue={r.bank ?? ""} placeholder="Bank (mis. BCA)" className={inp} />
