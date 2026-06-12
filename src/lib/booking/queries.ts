@@ -14,6 +14,9 @@ export type BookingKonfirmasi = {
   package: { nama: string; durasi_menit: number } | null;
   layanan_nama: string;
   layanan_admin_wa: string;
+  layanan_bank: string | null;
+  layanan_no_rek: string | null;
+  layanan_atas_nama: string | null;
   payment: { status_bayar: string; total: number; ongkos: number; diskon: number; dp_amount: number | null } | null;
 };
 
@@ -25,7 +28,7 @@ export async function getBookingByKode(kode: string): Promise<BookingKonfirmasi 
     .select(
       "kode_booking, tanggal, jam_mulai, anak_nama, anak_bb, anak_jk, lokasi_sesi, alamat_sesi, " +
         "sesi:sesi_id(nama), zona:zona_id(nama), " +
-        "package:package_id(nama, durasi_menit, layanan:layanan_id(nama, admin_wa)), " +
+        "package:package_id(nama, durasi_menit, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama)), " +
         "payment(status_bayar, total, ongkos, diskon, dp_amount)",
     )
     .eq("kode_booking", kode)
@@ -43,7 +46,7 @@ export async function getBookingByKode(kode: string): Promise<BookingKonfirmasi 
     alamat_sesi: string | null;
     sesi: { nama: string } | null;
     zona: { nama: string } | null;
-    package: { nama: string; durasi_menit: number; layanan: { nama: string; admin_wa: string } | null } | null;
+    package: { nama: string; durasi_menit: number; layanan: { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null } | null } | null;
     payment: BookingKonfirmasi["payment"];
   };
   const pkg = d.package;
@@ -62,6 +65,9 @@ export async function getBookingByKode(kode: string): Promise<BookingKonfirmasi 
     package: pkg ? { nama: pkg.nama, durasi_menit: pkg.durasi_menit } : null,
     layanan_nama: pkg?.layanan?.nama ?? "",
     layanan_admin_wa: pkg?.layanan?.admin_wa ?? "",
+    layanan_bank: pkg?.layanan?.bank ?? null,
+    layanan_no_rek: pkg?.layanan?.no_rek ?? null,
+    layanan_atas_nama: pkg?.layanan?.atas_nama ?? null,
     payment: d.payment ?? null,
   };
 }
@@ -142,11 +148,12 @@ export type DetailTransaksi = {
   anak_jk: string;
   lokasi_sesi: string;
   alamat_sesi: string | null;
+  drive_url: string | null;
   sesi_id: string;
   package_id: string;
   sesi: { nama: string } | null;
   zona: { nama: string } | null;
-  package: { nama: string; harga: number; durasi_menit: number; dp_persen: number; layanan_id: string; layanan: { nama: string; admin_wa: string } | null } | null;
+  package: { nama: string; harga: number; durasi_menit: number; dp_persen: number; layanan_id: string; layanan: { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null } | null } | null;
   payment: { id: string; status_bayar: string; total: number; ongkos: number; diskon: number; dp_amount: number | null; bukti_url: string | null } | null;
   profile: { nama: string | null; email: string | null; no_wa: string | null; alamat: string | null } | null;
   bukti_signed_url: string | null;
@@ -158,9 +165,9 @@ export async function getDetailTransaksi(kode: string): Promise<DetailTransaksi 
     .from("booking")
     .select(
       "id, kode_booking, tanggal, jam_mulai, status_booking, status_pengerjaan, " +
-        "anak_nama, anak_bb, anak_jk, lokasi_sesi, alamat_sesi, sesi_id, package_id, " +
+        "anak_nama, anak_bb, anak_jk, lokasi_sesi, alamat_sesi, drive_url, sesi_id, package_id, " +
         "sesi:sesi_id(nama), zona:zona_id(nama), " +
-        "package:package_id(nama, harga, durasi_menit, dp_persen, layanan_id, layanan:layanan_id(nama, admin_wa)), " +
+        "package:package_id(nama, harga, durasi_menit, dp_persen, layanan_id, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama)), " +
         "payment(id, status_bayar, total, ongkos, diskon, dp_amount, bukti_url), " +
         "profile:customer_profile_id(nama, email, no_wa, alamat)",
     )

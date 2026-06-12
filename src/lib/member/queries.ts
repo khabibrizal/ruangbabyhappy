@@ -8,6 +8,7 @@ export type RiwayatBooking = {
   anak_nama: string;
   status_booking: string;
   status_pengerjaan: string | null;
+  drive_url: string | null;
   sesi: { nama: string } | null;
   package: { nama: string; layanan: { nama: string } | null } | null;
   payment: { status_bayar: string; total: number; ongkos: number; diskon: number; dp_amount: number | null } | null;
@@ -19,7 +20,7 @@ export async function getMyBookings(): Promise<RiwayatBooking[]> {
   const { data } = await supabase
     .from("booking")
     .select(
-      "kode_booking, tanggal, jam_mulai, lokasi_sesi, anak_nama, status_booking, status_pengerjaan, " +
+      "kode_booking, tanggal, jam_mulai, lokasi_sesi, anak_nama, status_booking, status_pengerjaan, drive_url, " +
         "sesi:sesi_id(nama), package:package_id(nama, layanan:layanan_id(nama)), " +
         "payment(status_bayar, total, ongkos, diskon, dp_amount)",
     )
@@ -37,9 +38,10 @@ export type MemberDetail = {
   anak_bb: number;
   anak_jk: string;
   status_pengerjaan: string | null;
+  drive_url: string | null;
   sesi: { nama: string } | null;
   zona: { nama: string } | null;
-  package: { nama: string; layanan: { nama: string; admin_wa: string } | null } | null;
+  package: { nama: string; layanan: { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null } | null } | null;
   payment: { status_bayar: string; total: number; ongkos: number; diskon: number; dp_amount: number | null } | null;
 };
 
@@ -49,9 +51,9 @@ export async function getMyBookingDetail(kode: string): Promise<MemberDetail | n
   const { data } = await supabase
     .from("booking")
     .select(
-      "kode_booking, tanggal, jam_mulai, lokasi_sesi, alamat_sesi, anak_nama, anak_bb, anak_jk, status_pengerjaan, " +
+      "kode_booking, tanggal, jam_mulai, lokasi_sesi, alamat_sesi, anak_nama, anak_bb, anak_jk, status_pengerjaan, drive_url, " +
         "sesi:sesi_id(nama), zona:zona_id(nama), " +
-        "package:package_id(nama, layanan:layanan_id(nama, admin_wa)), " +
+        "package:package_id(nama, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama)), " +
         "payment(status_bayar, total, ongkos, diskon, dp_amount)",
     )
     .eq("kode_booking", kode)

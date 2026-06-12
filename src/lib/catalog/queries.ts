@@ -58,6 +58,9 @@ export type PackageDetail = {
   layanan_id: string;
   layanan_nama: string;
   layanan_admin_wa: string;
+  layanan_bank: string | null;
+  layanan_no_rek: string | null;
+  layanan_atas_nama: string | null;
 };
 
 /** Untuk halaman detail/booking (Plan 3): paket + layanan-nya. */
@@ -66,13 +69,13 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
   const { data } = await supabase
     .from("package")
     .select(
-      "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, foto_url, layanan_id, layanan(nama, admin_wa)",
+      "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, foto_url, layanan_id, layanan(nama, admin_wa, bank, no_rek, atas_nama)",
     )
     .eq("id", id)
     .eq("is_active", true)
     .maybeSingle();
   if (!data) return null;
-  const layanan = data.layanan as unknown as { nama: string; admin_wa: string } | null;
+  const layanan = data.layanan as unknown as { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null } | null;
   return {
     id: data.id as string,
     nama: data.nama as string,
@@ -85,6 +88,9 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
     layanan_id: data.layanan_id as string,
     layanan_nama: layanan?.nama ?? "",
     layanan_admin_wa: layanan?.admin_wa ?? "",
+    layanan_bank: layanan?.bank ?? null,
+    layanan_no_rek: layanan?.no_rek ?? null,
+    layanan_atas_nama: layanan?.atas_nama ?? null,
   };
 }
 
