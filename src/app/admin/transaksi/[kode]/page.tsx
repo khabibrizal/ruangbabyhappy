@@ -117,6 +117,13 @@ export default async function DetailTransaksiPage({
           <option value="">Belum mulai</option>
           {TAHAP_PENGERJAAN.map((t) => <option key={t} value={t}>{LABEL_PENGERJAAN[t]}</option>)}
         </select>
+        <input
+          name="drive_url"
+          type="url"
+          defaultValue={d.drive_url ?? ""}
+          placeholder="Link Google Drive hasil foto"
+          className={inp}
+        />
         <button className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Status</button>
       </form>
 

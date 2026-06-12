@@ -96,8 +96,9 @@ export async function updateStatusPengerjaan(formData: FormData) {
   const kode = String(formData.get("kode") ?? "");
   const raw = String(formData.get("status_pengerjaan") ?? "");
   const nilai = (TAHAP_PENGERJAAN as readonly string[]).includes(raw) ? raw : null;
+  const drive_url = String(formData.get("drive_url") ?? "").trim() || null;
   const admin = createAdminClient();
-  await admin.from("booking").update({ status_pengerjaan: nilai }).eq("id", bookingId);
+  await admin.from("booking").update({ status_pengerjaan: nilai, drive_url }).eq("id", bookingId);
   revalidatePath(`/admin/transaksi/${kode}`);
   redirect(`/admin/transaksi/${kode}?ok=1${navSuffix(formData)}`);
 }
