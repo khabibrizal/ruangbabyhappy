@@ -44,12 +44,20 @@ export async function buatTransaksiAdmin(formData: FormData) {
 
   // 3. Harga paket (snapshot) + paket primary.
   const ids = items.map((i) => i.packageId);
-  const { data: pkgsData } = await admin.from("package").select("id, harga, dp_persen").in("id", ids);
-  const pkgs = (pkgsData ?? []) as unknown as { id: string; harga: number; dp_persen: number }[];
+  const { data: pkgsData } = await admin
+    .from("package")
+    .select("id, harga, dp_persen, layanan:layanan_id(vendor:vendor_id(butuh_anak))")
+    .in("id", ids);
+  const pkgs = (pkgsData ?? []) as unknown as {
+    id: string; harga: number; dp_persen: number;
+    layanan: { vendor: { butuh_anak: boolean } | null } | null;
+  }[];
   const pkgMap = new Map(pkgs.map((p) => [p.id, p]));
   if (pkgMap.size === 0) back("Paket tidak ditemukan");
   const primary = pkgMap.get(items[0].packageId);
   const total = items.reduce((sum, it) => sum + (pkgMap.get(it.packageId)?.harga ?? 0) * it.qty, 0);
+  // Butuh data anak ditentukan dari vendor paket PRIMARY (otoritatif server).
+  const butuhAnak = primary?.layanan?.vendor?.butuh_anak ?? true;
 
   // 4. Jadwal + lokasi + ongkos.
   const tanggal = String(formData.get("tanggal") ?? "");
@@ -72,7 +80,7 @@ export async function buatTransaksiAdmin(formData: FormData) {
   const anakNama = String(formData.get("anak_nama") ?? "").trim();
   const anakBb = Number(formData.get("anak_bb") ?? 0);
   const anakJk = String(formData.get("anak_jk") ?? "");
-  if (!anakNama || !anakBb || (anakJk !== "L" && anakJk !== "P")) back("Data anak belum lengkap");
+  if (butuhAnak && (!anakNama || !anakBb || (anakJk !== "L" && anakJk !== "P"))) back("Data anak belum lengkap");
 
   // 6. Diskon, DP, status.
   const diskon = Math.max(0, Number(formData.get("diskon") ?? 0));
@@ -90,7 +98,7 @@ export async function buatTransaksiAdmin(formData: FormData) {
     package_id: items[0].packageId,
     sesi_id: sesiId,
     customer_profile_id: customerId,
-    anak_nama: anakNama, anak_bb: anakBb, anak_jk: anakJk,
+    anak_nama: butuhAnak ? anakNama : null, anak_bb: butuhAnak ? anakBb : null, anak_jk: butuhAnak ? anakJk : null,
     lokasi_sesi: lokasi,
     zona_id: lokasi === "home" ? (zonaId || null) : null,
     alamat_sesi: lokasi === "home" ? alamatSesi : null,

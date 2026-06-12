@@ -35,7 +35,8 @@ export default async function PaketDetailPage({
   const returning = (count ?? 0) > 0;
 
   // Anak yang pernah diinput member (untuk dipilih ulang); tetap bisa tambah anak baru.
-  const anak = await getAnakByProfile(profile!.id);
+  // Hanya relevan bila vendor butuh data anak; selain itu kosongkan.
+  const anak = paket.butuh_anak ? await getAnakByProfile(profile!.id) : [];
 
   return (
     <PublicShell>
@@ -65,6 +66,7 @@ export default async function PaketDetailPage({
           returning={returning}
           zona={zona}
           anak={anak}
+          butuhAnak={paket.butuh_anak}
         />
       </main>
     </PublicShell>

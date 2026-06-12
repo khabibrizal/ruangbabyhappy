@@ -31,7 +31,6 @@ export async function buatBooking(formData: FormData) {
   const alamatSesi = String(formData.get("alamat_sesi") ?? "").trim();
 
   if (!packageId || !tanggal || !sesiId) back("Data belum lengkap");
-  if (!anakNama || !anakBb || (anakJk !== "L" && anakJk !== "P")) back("Data anak belum lengkap");
   if (lokasi === "home" && (!zonaId || !alamatSesi)) back("Zona & alamat home service wajib diisi");
 
   // 1. Bukti TF wajib (gambar, <=5MB).
@@ -48,13 +47,25 @@ export async function buatBooking(formData: FormData) {
   const sesiDipilih = sesiTersedia.find((s) => s.id === sesiId);
   if (!sesiDipilih) back("Sesi sudah tidak tersedia");
 
-  // 3. Paket -> harga, dp_persen, diskon_returning.
-  const { data: paket } = await admin
+  // 3. Paket -> harga, dp_persen, diskon_returning, + vendor.butuh_anak (otoritatif server).
+  const { data: paketData } = await admin
     .from("package")
-    .select("harga, dp_persen, diskon_returning")
+    .select("harga, dp_persen, diskon_returning, layanan:layanan_id(vendor:vendor_id(butuh_anak))")
     .eq("id", packageId)
     .single();
-  if (!paket) back("Paket tidak ditemukan");
+  if (!paketData) back("Paket tidak ditemukan");
+  const paket = paketData as unknown as {
+    harga: number;
+    dp_persen: number;
+    diskon_returning: number;
+    layanan: { vendor: { butuh_anak: boolean } | null } | null;
+  };
+
+  // 3b. Butuh data anak? (otoritatif dari vendor; default true bila tak terset).
+  const butuhAnak = paket.layanan?.vendor?.butuh_anak ?? true;
+  if (butuhAnak && (!anakNama || !anakBb || (anakJk !== "L" && anakJk !== "P"))) {
+    back("Data anak belum lengkap");
+  }
 
   // 4. Ongkos dari zona (0 bila studio).
   let ongkos = 0;
@@ -93,9 +104,9 @@ export async function buatBooking(formData: FormData) {
       package_id: packageId,
       sesi_id: sesiId,
       customer_profile_id: profile!.id,
-      anak_nama: anakNama,
-      anak_bb: anakBb,
-      anak_jk: anakJk,
+      anak_nama: butuhAnak ? anakNama : null,
+      anak_bb: butuhAnak ? anakBb : null,
+      anak_jk: butuhAnak ? anakJk : null,
       lokasi_sesi: lokasi,
       zona_id: lokasi === "home" ? zonaId : null,
       alamat_sesi: lokasi === "home" ? alamatSesi : null,

@@ -20,6 +20,7 @@ export default function BookingForm({
   returning,
   zona,
   anak,
+  butuhAnak,
 }: {
   packageId: string;
   harga: number;
@@ -28,6 +29,7 @@ export default function BookingForm({
   returning: boolean;
   zona: ZonaOpsi[];
   anak: AnakOpsi[];
+  butuhAnak: boolean;
 }) {
   const [tanggal, setTanggal] = useState("");
   const [sesiList, setSesiList] = useState<SesiOpsi[] | null>(null);
@@ -61,6 +63,7 @@ export default function BookingForm({
     <form action={buatBooking} className="mt-6 flex flex-col gap-4">
       <input type="hidden" name="packageId" value={packageId} />
       <input type="hidden" name="sesiId" value={sesiId} />
+      <input type="hidden" name="butuh_anak" value={String(butuhAnak)} />
 
       {/* Tanggal */}
       <div>
@@ -92,7 +95,8 @@ export default function BookingForm({
 
       {sesiId && (
         <>
-          {/* Data anak */}
+          {/* Data anak — hanya bila vendor butuh data anak (mis. layanan bayi) */}
+          {butuhAnak && (
           <div className="rounded-2xl bg-white/60 p-3">
             <div className="text-sm font-bold">🍼 Data Anak</div>
             {anak.length > 0 && (
@@ -119,6 +123,7 @@ export default function BookingForm({
             </div>
             {anak.length > 0 && <p className="mt-1 text-xs text-foreground/45">Pilih anak tersimpan atau "Anak baru". BB bisa diperbarui.</p>}
           </div>
+          )}
 
           {/* Lokasi */}
           <div>
