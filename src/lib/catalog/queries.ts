@@ -21,14 +21,23 @@ export type LayananDenganPaket = {
 const PAKET_COLS =
   "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, foto_url, is_active, layanan_id";
 
-/** Untuk landing: layanan aktif beserta paket aktifnya (urut). Layanan tanpa paket aktif dibuang. */
+/** Untuk landing: layanan aktif (vendor default saja) beserta paket aktifnya (urut). Layanan tanpa paket aktif dibuang. */
 export async function getLayananDenganPaket(): Promise<LayananDenganPaket[]> {
   const supabase = await createClient();
-  const { data: layanan } = await supabase
+
+  const { data: def } = await supabase
+    .from("vendor")
+    .select("id")
+    .eq("is_default", true)
+    .maybeSingle();
+  const defaultVendorId = (def as { id: string } | null)?.id ?? null;
+
+  let q = supabase
     .from("layanan")
     .select("id, nama, urutan")
-    .eq("is_active", true)
-    .order("urutan");
+    .eq("is_active", true);
+  if (defaultVendorId) q = q.eq("vendor_id", defaultVendorId);
+  const { data: layanan } = await q.order("urutan");
   if (!layanan) return [];
 
   const { data: paket } = await supabase
@@ -61,21 +70,31 @@ export type PackageDetail = {
   layanan_bank: string | null;
   layanan_no_rek: string | null;
   layanan_atas_nama: string | null;
+  butuh_anak: boolean;
+  vendor_nama: string;
+  vendor_tagline: string | null;
+  vendor_ig: string | null;
+  vendor_alamat: string | null;
+  vendor_slug: string;
 };
 
-/** Untuk halaman detail/booking (Plan 3): paket + layanan-nya. */
+/** Untuk halaman detail/booking (Plan 3): paket + layanan-nya + vendor brand. */
 export async function getPackageById(id: string): Promise<PackageDetail | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("package")
     .select(
-      "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, foto_url, layanan_id, layanan(nama, admin_wa, bank, no_rek, atas_nama)",
+      "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, foto_url, layanan_id, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama, vendor:vendor_id(nama, tagline, ig, alamat, slug, butuh_anak))",
     )
     .eq("id", id)
     .eq("is_active", true)
     .maybeSingle();
   if (!data) return null;
-  const layanan = data.layanan as unknown as { nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null } | null;
+  const layanan = data.layanan as unknown as {
+    nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null;
+    vendor: { nama: string; tagline: string | null; ig: string | null; alamat: string | null; slug: string; butuh_anak: boolean } | null;
+  } | null;
+  const vendor = layanan?.vendor ?? null;
   return {
     id: data.id as string,
     nama: data.nama as string,
@@ -91,6 +110,12 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
     layanan_bank: layanan?.bank ?? null,
     layanan_no_rek: layanan?.no_rek ?? null,
     layanan_atas_nama: layanan?.atas_nama ?? null,
+    butuh_anak: vendor?.butuh_anak ?? true,
+    vendor_nama: vendor?.nama ?? layanan?.nama ?? "",
+    vendor_tagline: vendor?.tagline ?? null,
+    vendor_ig: vendor?.ig ?? null,
+    vendor_alamat: vendor?.alamat ?? null,
+    vendor_slug: vendor?.slug ?? "",
   };
 }
 
