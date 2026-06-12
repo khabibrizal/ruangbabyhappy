@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDetailTransaksi } from "@/lib/booking/queries";
+import { getBookingItems } from "@/lib/booking/queries";
 import { simpanDetailTransaksi, updateStatusPengerjaan, rescheduleBooking } from "@/lib/booking/adminPayment";
 import { listPaket, listSesi } from "@/lib/admin/masterQueries";
 import { formatRupiah } from "@/lib/format/rupiah";
@@ -21,6 +22,7 @@ export default async function DetailTransaksiPage({
   const { error, ok, ref, bulan } = await searchParams;
   const d = await getDetailTransaksi(kode);
   if (!d) notFound();
+  const items = await getBookingItems(d.id);
 
   const dariJadwal = ref === "jadwal";
   const backHref = dariJadwal ? `/admin/schedule${bulan ? `?bulan=${bulan}` : ""}` : "/admin/transaksi";
@@ -56,6 +58,16 @@ export default async function DetailTransaksiPage({
           <dt className="text-slate-500">Lokasi</dt><dd className="col-span-2">{d.lokasi_sesi === "home" ? `Home${d.zona ? ` · ${d.zona.nama}` : ""}${d.alamat_sesi ? ` · ${d.alamat_sesi}` : ""}` : "Di Studio"}</dd>
           <dt className="text-slate-500">Layanan</dt><dd className="col-span-2">{d.package?.layanan?.nama ?? "-"}</dd>
           <dt className="text-slate-500">Paket</dt><dd className="col-span-2">{d.package?.nama ?? "-"}</dd>
+          {items.length > 0 && (
+            <>
+              <dt className="text-slate-500">Item</dt>
+              <dd className="col-span-2">
+                {items.map((it, i) => (
+                  <div key={i}>{it.nama} × {it.qty} = {formatRupiah(it.harga * it.qty)}</div>
+                ))}
+              </dd>
+            </>
+          )}
           <dt className="text-slate-500">Jadwal</dt><dd className="col-span-2">{d.tanggal} · {d.sesi?.nama ?? ""} ({d.jam_mulai.slice(0, 5)})</dd>
           <dt className="text-slate-500">Paket</dt><dd className="col-span-2">{formatRupiah(total)}</dd>
           <dt className="text-slate-500">Ongkos</dt><dd className="col-span-2">{formatRupiah(ongkos)}</dd>

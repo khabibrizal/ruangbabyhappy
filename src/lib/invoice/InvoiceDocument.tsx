@@ -8,6 +8,7 @@ export type InvoiceData = {
   layanan: string; paket: string; tanggal: string; sesi: string;
   total: number; ongkos: number; diskon: number; tagihan: number; dp: number; sisa: number;
   status: string; tglCetak: string;
+  items?: { nama: string; qty: number; harga: number }[];
 };
 
 const PINK = "#ec4899";
@@ -97,13 +98,19 @@ export function InvoiceDocument({ d }: { d: InvoiceData }) {
 
           {/* Rincian pesanan */}
           <Text style={s.sectionH}>Rincian Pesanan</Text>
-          <View style={s.itemRow}>
-            <View>
-              <Text style={s.itemName}>{d.paket}</Text>
-              <Text style={s.itemSub}>{d.layanan} · {d.tanggal} · {d.sesi}</Text>
+          {d.items && d.items.length > 0 ? (
+            d.items.map((it, i) => (
+              <View key={i} style={s.itemRow}>
+                <View><Text style={s.itemName}>{it.nama}</Text><Text style={s.itemSub}>{it.qty} × {formatRupiah(it.harga)}</Text></View>
+                <Text>{formatRupiah(it.harga * it.qty)}</Text>
+              </View>
+            ))
+          ) : (
+            <View style={s.itemRow}>
+              <View><Text style={s.itemName}>{d.paket}</Text><Text style={s.itemSub}>{d.layanan} · {d.tanggal} · {d.sesi}</Text></View>
+              <Text>{formatRupiah(d.total)}</Text>
             </View>
-            <Text>{formatRupiah(d.total)}</Text>
-          </View>
+          )}
           {d.ongkos > 0 && (
             <View style={s.itemRow}>
               <View>

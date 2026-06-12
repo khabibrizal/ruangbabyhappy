@@ -1,5 +1,6 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getDetailTransaksi } from "@/lib/booking/queries";
+import { getBookingItems } from "@/lib/booking/queries";
 import { InvoiceDocument } from "@/lib/invoice/InvoiceDocument";
 
 const LABEL: Record<string, string> = { unpaid: "Belum bayar", dp_paid: "Sudah DP", lunas: "Lunas" };
@@ -8,6 +9,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ kode: s
   const { kode } = await params;
   const d = await getDetailTransaksi(kode);
   if (!d) return new Response("Not found", { status: 404 });
+  const items = await getBookingItems(d.id);
 
   const pay = d.payment;
   const status = pay?.status_bayar ?? "unpaid";
@@ -30,6 +32,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ kode: s
         tanggal: d.tanggal,
         sesi: d.sesi?.nama ?? "",
         total, ongkos, diskon, tagihan, dp,
+        items: items.map((it) => ({ nama: it.nama, qty: it.qty, harga: it.harga })),
         sisa: status === "lunas" ? 0 : Math.max(0, tagihan - dp),
         status: LABEL[status] ?? status,
         tglCetak: new Date().toISOString().slice(0, 10),
