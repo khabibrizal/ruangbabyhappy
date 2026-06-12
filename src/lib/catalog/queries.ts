@@ -76,6 +76,7 @@ export type PackageDetail = {
   vendor_ig: string | null;
   vendor_alamat: string | null;
   vendor_slug: string;
+  vendor_is_default: boolean;
 };
 
 /** Untuk halaman detail/booking (Plan 3): paket + layanan-nya + vendor brand. */
@@ -84,7 +85,7 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
   const { data } = await supabase
     .from("package")
     .select(
-      "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, foto_url, layanan_id, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama, vendor:vendor_id(nama, tagline, ig, alamat, slug, butuh_anak))",
+      "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, foto_url, layanan_id, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama, vendor:vendor_id(nama, tagline, ig, alamat, slug, butuh_anak, is_default))",
     )
     .eq("id", id)
     .eq("is_active", true)
@@ -92,7 +93,7 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
   if (!data) return null;
   const layanan = data.layanan as unknown as {
     nama: string; admin_wa: string; bank: string | null; no_rek: string | null; atas_nama: string | null;
-    vendor: { nama: string; tagline: string | null; ig: string | null; alamat: string | null; slug: string; butuh_anak: boolean } | null;
+    vendor: { nama: string; tagline: string | null; ig: string | null; alamat: string | null; slug: string; butuh_anak: boolean; is_default: boolean } | null;
   } | null;
   const vendor = layanan?.vendor ?? null;
   return {
@@ -116,6 +117,7 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
     vendor_ig: vendor?.ig ?? null,
     vendor_alamat: vendor?.alamat ?? null,
     vendor_slug: vendor?.slug ?? "",
+    vendor_is_default: vendor?.is_default ?? true,
   };
 }
 

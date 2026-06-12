@@ -41,7 +41,9 @@ export default async function PaketDetailPage({
   return (
     <PublicShell>
       <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
-        <Link href="/" className="text-sm text-foreground/50 underline">← Kembali</Link>
+        <Link href={paket.vendor_is_default ? "/" : `/v/${paket.vendor_slug}`} className="text-sm text-foreground/50 underline">
+          ← Kembali ke {paket.vendor_nama}
+        </Link>
         <span className="mt-3 inline-block rounded-full bg-white px-3 py-1 text-xs font-extrabold text-pink-500 shadow-sm">
           {paket.layanan_nama}
         </span>
