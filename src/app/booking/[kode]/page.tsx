@@ -57,6 +57,13 @@ export default async function KonfirmasiPage({
             </div>
           </div>
 
+          {b.layanan_bank && (
+            <div className="mt-4 rounded-2xl bg-white p-4 text-sm font-semibold shadow-sm">
+              <div className="text-foreground/50">Transfer ke:</div>
+              <div className="font-bold">{b.layanan_bank} {b.layanan_no_rek} a.n. {b.layanan_atas_nama}</div>
+            </div>
+          )}
+
           <a href={waUrl} target="_blank" rel="noopener noreferrer"
             className="mt-4 flex h-12 items-center justify-center rounded-full bg-green-500 px-4 font-bold text-white shadow-lg hover:bg-green-600">
             💬 Chat Admin via WA

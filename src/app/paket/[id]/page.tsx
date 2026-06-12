@@ -49,6 +49,14 @@ export default async function PaketDetailPage({
         <p className="mt-2 font-display text-2xl font-extrabold text-pink-500">{formatRupiah(paket.harga)}</p>
         <p className="text-xs text-foreground/45">±{paket.durasi_menit} menit · DP {paket.dp_persen}%</p>
 
+        {paket.layanan_bank && (
+          <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-foreground/70">
+            <div className="font-bold">Transfer DP ke:</div>
+            <div>{paket.layanan_bank} {paket.layanan_no_rek} a.n. {paket.layanan_atas_nama}</div>
+            {paket.layanan_admin_wa && <div className="mt-1 text-xs text-foreground/50">Konfirmasi via WA: {paket.layanan_admin_wa}</div>}
+          </div>
+        )}
+
         <BookingForm
           packageId={paket.id}
           harga={paket.harga}
