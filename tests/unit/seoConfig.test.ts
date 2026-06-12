@@ -14,7 +14,7 @@ describe("seo/config", () => {
     expect(m.alternates?.canonical).toBe(`${SITE_URL}/paket/1`);
     expect(m.openGraph?.title).toBe("T");
     expect((m.openGraph as { url?: string }).url).toBe(`${SITE_URL}/paket/1`);
-    expect(m.twitter?.card).toBe("summary_large_image");
+    expect((m.twitter as { card?: string })?.card).toBe("summary_large_image");
     const og = m.openGraph as { images?: { url: string }[] };
     expect(og.images?.[0].url).toBe(`${SITE_URL}/og-default.png`);
   });
