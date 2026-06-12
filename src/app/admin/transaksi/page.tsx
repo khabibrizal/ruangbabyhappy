@@ -31,7 +31,10 @@ export default async function TransaksiAdminPage({
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-slate-800">Transaksi</h1>
-        <Link href="/admin" className="text-sm text-slate-500 underline">← Dashboard</Link>
+        <div className="flex gap-3">
+          <Link href="/admin/transaksi/baru" className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-bold text-white">+ Transaksi Baru</Link>
+          <Link href="/admin" className="text-sm text-slate-500 underline self-center">← Dashboard</Link>
+        </div>
       </div>
 
       <form method="get" className="mt-4 flex flex-wrap items-end gap-3">
