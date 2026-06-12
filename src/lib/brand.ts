@@ -4,8 +4,7 @@ export const brand = {
   tagline: "imagine your little moment",
   ig: "ruangbabyhappy",
   igUrl: "https://instagram.com/ruangbabyhappy",
-  // TODO(user): ganti alamat & koordinat asli saat implementasi
-  alamat: "Sidoarjo",
+  alamat: "Jl. Abdulrahman no 33 rt 13 rw 05 Payan Pabean Sedati Sidoarjo",
   kota: "Sidoarjo",
   // Titik lokasi studio (dari https://maps.app.goo.gl/L9idTE82A7igrQW97)
   mapsEmbed: "https://maps.google.com/maps?q=-7.368132,112.759980&z=16&output=embed",
@@ -16,12 +15,9 @@ export const brand = {
   noRek: "0000000000",
   atasNama: "Ruang Baby Happy",
   // --- Data untuk JSON-LD / SEO lokal ---
-  // TODO(user): isi alamat jalan asli (untuk schema PostalAddress)
-  alamatLengkap: "Sidoarjo, Jawa Timur",
-  // TODO(user): isi nomor WA/telepon bisnis asli, format E.164
-  telepon: "+6282233684933",
-  // Koordinat studio (sudah real, diambil dari mapsEmbed)
-  geo: { lat: -7.368132, lng: 112.75998 },
+  alamatLengkap: "Jl. Abdulrahman no 33 rt 13 rw 05 Payan Pabean Sedati Sidoarjo, Jawa Timur", // schema PostalAddress
+  telepon: "+6282233684933", // schema telephone (E.164)
+  geo: { lat: -7.368132, lng: 112.75998 }, // dari mapsEmbed
 } as const;
 
 // Foto galeri diisi via master Galeri (Plan 4/5) / folder public; kosong di awal.
