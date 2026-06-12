@@ -8,6 +8,7 @@ export type InvoiceData = {
   layanan: string; paket: string; tanggal: string; sesi: string;
   total: number; ongkos: number; diskon: number; tagihan: number; dp: number; sisa: number;
   status: string; tglCetak: string;
+  bank: string; noRek: string; atasNama: string;
   items?: { nama: string; qty: number; harga: number }[];
 };
 
@@ -135,8 +136,8 @@ export function InvoiceDocument({ d }: { d: InvoiceData }) {
           {/* Rekening */}
           <View style={s.rekBox}>
             <Text style={s.cardH}>PEMBAYARAN KE</Text>
-            <Text style={s.line}>{brand.bank} · {brand.noRek}</Text>
-            <Text style={s.line}>a.n. {brand.atasNama}</Text>
+            <Text style={s.line}>{d.bank} · {d.noRek}</Text>
+            <Text style={s.line}>a.n. {d.atasNama}</Text>
           </View>
 
           <Text style={s.foot}>
