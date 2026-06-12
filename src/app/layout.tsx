@@ -21,6 +21,11 @@ export const metadata: Metadata = {
     images: [{ url: DEFAULT_OG, width: 1200, height: 630 }],
   },
   twitter: { card: "summary_large_image", images: [DEFAULT_OG] },
+  // Verifikasi Google Search Console (metode HTML tag). Isi via env NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+  // bila kosong, Next tidak merender meta-nya.
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
