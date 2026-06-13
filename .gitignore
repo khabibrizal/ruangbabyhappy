@@ -12,6 +12,6 @@ next-env.d.ts
 tests/e2e/_bukti.png
 
 # Data customer legacy (privasi — jangan commit)
-scripts/legacy-customers.csv
+scripts/*.csv
 
 .vercel

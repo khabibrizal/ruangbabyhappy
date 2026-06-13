@@ -37,8 +37,13 @@ export async function simpanProfilCustomer(formData: FormData) {
   if (me?.role !== "admin") throw new Error("forbidden");
   const id = String(formData.get("id") ?? "").trim();
   const q = String(formData.get("q") ?? "");
-  const balik = `/admin/master/customer?profileId=${encodeURIComponent(id)}${q ? `&q=${encodeURIComponent(q)}` : ""}`;
+  const page = String(formData.get("page") ?? "");
   if (!id) redirect(`/admin/master/customer?error=${encodeURIComponent("Customer tidak valid")}`);
+  const ctx = new URLSearchParams();
+  ctx.set("ok", "Profil customer tersimpan");
+  if (q) ctx.set("q", q);
+  if (page) ctx.set("page", page);
+  const balik = `/admin/master/customer/${id}?${ctx}`;
 
   const admin = createAdminClient();
   await admin
@@ -53,5 +58,5 @@ export async function simpanProfilCustomer(formData: FormData) {
     .eq("id", id);
 
   revalidatePath("/admin/master/customer");
-  redirect(`${balik}&ok=${encodeURIComponent("Profil customer tersimpan")}`);
+  redirect(balik);
 }
