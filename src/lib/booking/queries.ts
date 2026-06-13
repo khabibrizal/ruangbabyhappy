@@ -140,6 +140,32 @@ export async function listTransaksiAdmin(filter: FilterTransaksi = {}): Promise<
 
 export type ProfileLite = { id: string; nama: string | null; no_wa: string | null; email: string | null; alamat: string | null };
 
+export const CUSTOMER_PER_PAGE = 10;
+
+/**
+ * Daftar customer (role member) berhalaman, 10/halaman. Bila `q` (>=2 char)
+ * diisi, disaring by nama/no_wa. Terbaru dulu. Dipakai halaman Master Customer.
+ */
+export async function listCustomers(
+  { q = "", page = 1 }: { q?: string; page?: number } = {},
+): Promise<{ rows: ProfileLite[]; total: number }> {
+  const admin = createAdminClient();
+  const p = Math.max(1, page);
+  const from = (p - 1) * CUSTOMER_PER_PAGE;
+  const to = from + CUSTOMER_PER_PAGE - 1;
+  let query = admin
+    .from("profiles")
+    .select("id, nama, no_wa, email, alamat", { count: "exact" })
+    .eq("role", "member");
+  const term = q.trim();
+  if (term.length >= 2) {
+    const like = `%${term}%`;
+    query = query.or(`nama.ilike.${like},no_wa.ilike.${like}`);
+  }
+  const { data, count } = await query.order("created_at", { ascending: false }).range(from, to);
+  return { rows: (data as ProfileLite[]) ?? [], total: count ?? 0 };
+}
+
 /** Ambil 1 profil customer by id (utk halaman Master Customer). */
 export async function getProfileById(id: string): Promise<ProfileLite | null> {
   if (!id) return null;
