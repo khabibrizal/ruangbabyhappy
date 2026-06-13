@@ -138,6 +138,46 @@ export async function listTransaksiAdmin(filter: FilterTransaksi = {}): Promise<
   return { rows: withSigned, total: count ?? 0 };
 }
 
+export type ProfileLite = { id: string; nama: string | null; no_wa: string | null; email: string | null; alamat: string | null };
+
+/** Ambil 1 profil customer by id (utk halaman Master Customer). */
+export async function getProfileById(id: string): Promise<ProfileLite | null> {
+  if (!id) return null;
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("profiles")
+    .select("id, nama, no_wa, email, alamat")
+    .eq("id", id)
+    .maybeSingle();
+  return (data as ProfileLite) ?? null;
+}
+
+export type TransaksiCustomerRow = {
+  kode_booking: string;
+  tanggal: string;
+  status_booking: string;
+  status_pengerjaan: string | null;
+  sesi: { nama: string } | null;
+  package: { nama: string; layanan: { nama: string } | null } | null;
+  payment: { status_bayar: string; total: number } | null;
+};
+
+/** Riwayat transaksi seorang customer (utk halaman Master Customer). Terbaru dulu. */
+export async function listTransaksiByCustomer(profileId: string): Promise<TransaksiCustomerRow[]> {
+  if (!profileId) return [];
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("booking")
+    .select(
+      "kode_booking, tanggal, status_booking, status_pengerjaan, " +
+        "sesi:sesi_id(nama), package:package_id(nama, layanan:layanan_id(nama)), " +
+        "payment(status_bayar, total)",
+    )
+    .eq("customer_profile_id", profileId)
+    .order("created_at", { ascending: false });
+  return (data as unknown as TransaksiCustomerRow[]) ?? [];
+}
+
 export type DetailTransaksi = {
   id: string;
   kode_booking: string;

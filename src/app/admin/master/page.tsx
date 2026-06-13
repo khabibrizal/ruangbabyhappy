@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const MENU = [
+  { href: "/admin/master/customer", label: "Customer" },
   { href: "/admin/master/vendor", label: "Vendor" },
   { href: "/admin/master/layanan", label: "Layanan" },
   { href: "/admin/master/paket", label: "Paket" },
