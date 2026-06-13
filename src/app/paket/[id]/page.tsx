@@ -113,6 +113,8 @@ export default async function PaketDetailPage({
             zona={zona}
             anak={anak}
             butuhAnak={paket.butuh_anak}
+            bisaStudio={paket.bisa_studio}
+            bisaHome={paket.bisa_home}
           />
         ) : (
           <div className="mt-5 rounded-2xl border border-pink-200 bg-pink-50 p-4 text-center">

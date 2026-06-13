@@ -63,6 +63,8 @@ export type PackageDetail = {
   dp_persen: number;
   diskon_returning: number;
   durasi_menit: number;
+  bisa_studio: boolean;
+  bisa_home: boolean;
   foto_url: string | null;
   layanan_id: string;
   layanan_nama: string;
@@ -85,7 +87,7 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
   const { data } = await supabase
     .from("package")
     .select(
-      "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, foto_url, layanan_id, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama, vendor:vendor_id(nama, tagline, ig, alamat, slug, butuh_anak, is_default))",
+      "id, nama, deskripsi, harga, dp_persen, diskon_returning, durasi_menit, bisa_studio, bisa_home, foto_url, layanan_id, layanan:layanan_id(nama, admin_wa, bank, no_rek, atas_nama, vendor:vendor_id(nama, tagline, ig, alamat, slug, butuh_anak, is_default))",
     )
     .eq("id", id)
     .eq("is_active", true)
@@ -104,6 +106,8 @@ export async function getPackageById(id: string): Promise<PackageDetail | null> 
     dp_persen: data.dp_persen as number,
     diskon_returning: data.diskon_returning as number,
     durasi_menit: data.durasi_menit as number,
+    bisa_studio: (data.bisa_studio as boolean) ?? true,
+    bisa_home: (data.bisa_home as boolean) ?? true,
     foto_url: (data.foto_url as string) ?? null,
     layanan_id: data.layanan_id as string,
     layanan_nama: layanan?.nama ?? "",

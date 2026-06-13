@@ -18,11 +18,6 @@ export default async function MasterSesiPage() {
         <input name="nama" placeholder="Nama (Sesi 3)" className={inp} required />
         <input name="jam_mulai" type="time" className={inp} required defaultValue="09:00" />
         <input name="urutan" type="number" placeholder="Urutan" className={inp} defaultValue={0} />
-        <div className="col-span-3 flex flex-wrap items-center gap-4 text-sm text-slate-600">
-          <span className="text-slate-400">Lokasi tersedia:</span>
-          <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_studio" defaultChecked /> Di Studio</label>
-          <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_home" defaultChecked /> Home Service</label>
-        </div>
         <button className="col-span-3 h-11 rounded bg-slate-800 px-4 text-white">Tambah Sesi</button>
       </form>
 
@@ -34,11 +29,6 @@ export default async function MasterSesiPage() {
               <input name="nama" defaultValue={r.nama} className={inp} required />
               <input name="jam_mulai" type="time" defaultValue={r.jam_mulai.slice(0, 5)} className={inp} required />
               <input name="urutan" type="number" defaultValue={r.urutan} className={inp} />
-              <div className="col-span-3 flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                <span className="text-slate-400">Lokasi:</span>
-                <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_studio" defaultChecked={r.bisa_studio} /> Di Studio</label>
-                <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_home" defaultChecked={r.bisa_home} /> Home Service</label>
-              </div>
               <div className="col-span-3 flex items-center gap-2">
                 <button className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</button>
                 {!r.is_active && <span className="text-xs text-slate-400">(nonaktif)</span>}

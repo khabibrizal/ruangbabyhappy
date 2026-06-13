@@ -47,14 +47,10 @@ export async function buatBooking(formData: FormData) {
   const sesiDipilih = sesiTersedia.find((s) => s.id === sesiId);
   if (!sesiDipilih) back("Sesi sudah tidak tersedia");
 
-  // 2b. Lokasi harus sesuai kapabilitas sesi (otoritatif server).
-  if (lokasi === "studio" && !sesiDipilih!.bisa_studio) back("Sesi ini tidak melayani di studio");
-  if (lokasi === "home" && !sesiDipilih!.bisa_home) back("Sesi ini tidak melayani home service");
-
-  // 3. Paket -> harga, dp_persen, diskon_returning, + vendor.butuh_anak (otoritatif server).
+  // 3. Paket -> harga, dp_persen, diskon_returning, kapabilitas lokasi, + vendor.butuh_anak (otoritatif server).
   const { data: paketData } = await admin
     .from("package")
-    .select("harga, dp_persen, diskon_returning, layanan:layanan_id(vendor:vendor_id(butuh_anak))")
+    .select("harga, dp_persen, diskon_returning, bisa_studio, bisa_home, layanan:layanan_id(vendor:vendor_id(butuh_anak))")
     .eq("id", packageId)
     .single();
   if (!paketData) back("Paket tidak ditemukan");
@@ -62,10 +58,16 @@ export async function buatBooking(formData: FormData) {
     harga: number;
     dp_persen: number;
     diskon_returning: number;
+    bisa_studio: boolean;
+    bisa_home: boolean;
     layanan: { vendor: { butuh_anak: boolean } | null } | null;
   };
 
-  // 3b. Butuh data anak? (otoritatif dari vendor; default true bila tak terset).
+  // 3b. Lokasi harus sesuai kapabilitas PAKET (otoritatif server).
+  if (lokasi === "studio" && !paket.bisa_studio) back("Paket ini tidak melayani di studio");
+  if (lokasi === "home" && !paket.bisa_home) back("Paket ini tidak melayani home service");
+
+  // 3c. Butuh data anak? (otoritatif dari vendor; default true bila tak terset).
   const butuhAnak = paket.layanan?.vendor?.butuh_anak ?? true;
   if (butuhAnak && (!anakNama || !anakBb || (anakJk !== "L" && anakJk !== "P"))) {
     back("Data anak belum lengkap");

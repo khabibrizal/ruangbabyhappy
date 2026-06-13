@@ -6,7 +6,7 @@ import SubmitButton from "@/components/ui/SubmitButton";
 import { formatRupiah } from "@/lib/format/rupiah";
 import { hitungDiskon, hitungTagihan, hitungDp } from "@/lib/booking/hitung";
 
-type SesiOpsi = { id: string; nama: string; jam_mulai: string; bisa_studio: boolean; bisa_home: boolean };
+type SesiOpsi = { id: string; nama: string; jam_mulai: string };
 type ZonaOpsi = { id: string; nama: string; keterangan: string | null; biaya: number };
 type AnakOpsi = { nama: string; bb: number; jk: string };
 
@@ -21,6 +21,8 @@ export default function BookingForm({
   zona,
   anak,
   butuhAnak,
+  bisaStudio,
+  bisaHome,
 }: {
   packageId: string;
   harga: number;
@@ -30,12 +32,15 @@ export default function BookingForm({
   zona: ZonaOpsi[];
   anak: AnakOpsi[];
   butuhAnak: boolean;
+  bisaStudio: boolean;
+  bisaHome: boolean;
 }) {
   const [tanggal, setTanggal] = useState("");
   const [sesiList, setSesiList] = useState<SesiOpsi[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [sesiId, setSesiId] = useState("");
-  const [lokasi, setLokasi] = useState<"studio" | "home">("home");
+  // Lokasi awal: home bila paket melayani home, selain itu studio.
+  const [lokasi, setLokasi] = useState<"studio" | "home">(bisaHome ? "home" : "studio");
   const [zonaId, setZonaId] = useState("");
   // Data anak: prefill bila pilih anak tersimpan; tetap bisa isi anak baru.
   const [anakNama, setAnakNama] = useState("");
@@ -53,18 +58,9 @@ export default function BookingForm({
     setLoading(false);
   }
 
-  // Kapabilitas lokasi dari sesi terpilih (default keduanya bila tak terset).
-  const sesiDipilih = sesiList?.find((s) => s.id === sesiId) ?? null;
-  const canStudio = sesiDipilih?.bisa_studio ?? true;
-  const canHome = sesiDipilih?.bisa_home ?? true;
-
-  // Pilih sesi + sesuaikan lokasi dgn kapabilitasnya.
-  function pilihSesi(s: SesiOpsi) {
-    setSesiId(s.id);
-    if (s.bisa_studio && !s.bisa_home) { setLokasi("studio"); setZonaId(""); }
-    else if (!s.bisa_studio && s.bisa_home) { setLokasi("home"); }
-    // keduanya: pertahankan pilihan saat ini
-  }
+  // Kapabilitas lokasi dari PAKET (props).
+  const canStudio = bisaStudio;
+  const canHome = bisaHome;
 
   const ongkos = lokasi === "home" ? (zona.find((z) => z.id === zonaId)?.biaya ?? 0) : 0;
   const diskon = hitungDiskon({ returning, diskonReturning });
@@ -95,7 +91,7 @@ export default function BookingForm({
           <label className="text-sm font-bold">⏰ Pilih Sesi</label>
           <div className="mt-1 grid grid-cols-2 gap-2">
             {sesiList.map((s) => (
-              <button key={s.id} type="button" onClick={() => pilihSesi(s)}
+              <button key={s.id} type="button" onClick={() => setSesiId(s.id)}
                 className={`rounded-2xl p-3 text-center text-sm font-bold ring-1 transition ${
                   sesiId === s.id ? "bg-grad text-white ring-transparent" : "bg-white ring-black/10"
                 }`}>

@@ -27,6 +27,11 @@ export default async function MasterPaketPage() {
         <input name="durasi_menit" type="number" placeholder="Durasi (menit)" className={inp} required />
         <input name="diskon_returning" type="number" placeholder="Diskon pelanggan lama (Rp)" className={inp} defaultValue={0} />
         <input name="dp_persen" type="number" placeholder="DP %" className={inp} defaultValue={30} />
+        <div className="col-span-2 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+          <span className="text-slate-400">Lokasi tersedia:</span>
+          <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_studio" defaultChecked /> Di Studio</label>
+          <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_home" defaultChecked /> Home Service</label>
+        </div>
         <button className="col-span-2 h-11 rounded bg-slate-800 px-4 text-white">Tambah Paket</button>
       </form>
 
@@ -44,6 +49,11 @@ export default async function MasterPaketPage() {
               <input name="durasi_menit" type="number" defaultValue={r.durasi_menit} className={inp} required />
               <input name="diskon_returning" type="number" defaultValue={r.diskon_returning} className={inp} />
               <input name="dp_persen" type="number" defaultValue={r.dp_persen} className={inp} />
+              <div className="col-span-2 flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                <span className="text-slate-400">Lokasi:</span>
+                <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_studio" defaultChecked={r.bisa_studio} /> Di Studio</label>
+                <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_home" defaultChecked={r.bisa_home} /> Home Service</label>
+              </div>
               <div className="col-span-2 flex items-center gap-2">
                 <button className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</button>
                 <span className="text-xs text-slate-500">
