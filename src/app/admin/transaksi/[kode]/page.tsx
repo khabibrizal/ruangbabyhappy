@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDetailTransaksi } from "@/lib/booking/queries";
 import { getBookingItems } from "@/lib/booking/queries";
-import { simpanDetailTransaksi, updateStatusPengerjaan, rescheduleBooking } from "@/lib/booking/adminPayment";
+import { simpanDetailTransaksi, updateStatusPengerjaan, rescheduleBooking, tambahItemTransaksi, hapusItemTransaksi } from "@/lib/booking/adminPayment";
 import { listPaket, listSesi } from "@/lib/admin/masterQueries";
 import { formatRupiah } from "@/lib/format/rupiah";
 import { TAHAP_PENGERJAAN, LABEL_PENGERJAAN } from "@/lib/booking/statusPengerjaan";
@@ -56,16 +56,6 @@ export default async function DetailTransaksiPage({
           <dt className="text-slate-500">Lokasi</dt><dd className="col-span-2">{d.lokasi_sesi === "home" ? `Home${d.zona ? ` · ${d.zona.nama}` : ""}${d.alamat_sesi ? ` · ${d.alamat_sesi}` : ""}` : "Di Studio"}</dd>
           <dt className="text-slate-500">Layanan</dt><dd className="col-span-2">{d.package?.layanan?.nama ?? "-"}</dd>
           <dt className="text-slate-500">Paket</dt><dd className="col-span-2">{d.package?.nama ?? "-"}</dd>
-          {items.length > 0 && (
-            <>
-              <dt className="text-slate-500">Item</dt>
-              <dd className="col-span-2">
-                {items.map((it, i) => (
-                  <div key={i}>{it.nama} × {it.qty} = {formatRupiah(it.harga * it.qty)}</div>
-                ))}
-              </dd>
-            </>
-          )}
           <dt className="text-slate-500">Jadwal</dt><dd className="col-span-2">{d.tanggal} · {d.sesi?.nama ?? ""} ({d.jam_mulai.slice(0, 5)})</dd>
           <dt className="text-slate-500">Paket</dt><dd className="col-span-2">{formatRupiah(total)}</dd>
           <dt className="text-slate-500">Ongkos</dt><dd className="col-span-2">{formatRupiah(ongkos)}</dd>
@@ -78,6 +68,49 @@ export default async function DetailTransaksiPage({
         {d.bukti_signed_url && (
           <a href={d.bukti_signed_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block rounded border border-slate-300 px-3 py-1.5 text-sm">Lihat bukti TF</a>
         )}
+      </div>
+
+      {/* Item transaksi: tambah / hapus paket. Total header dihitung ulang otomatis. */}
+      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="font-semibold text-slate-700">Item Transaksi</h2>
+        <ul className="mt-3 divide-y divide-slate-100">
+          {items.map((it) => (
+            <li key={it.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+              <span>{it.nama} × {it.qty} = <span className="font-medium">{formatRupiah(it.harga * it.qty)}</span></span>
+              <form action={hapusItemTransaksi}>
+                <input type="hidden" name="itemId" value={it.id} />
+                <input type="hidden" name="bookingId" value={d.id} />
+                <input type="hidden" name="paymentId" value={pay?.id ?? ""} />
+                <input type="hidden" name="kode" value={d.kode_booking} />
+                {dariJadwal && <input type="hidden" name="ref" value="jadwal" />}
+                {dariJadwal && bulan && <input type="hidden" name="bulan" value={bulan} />}
+                <button className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50">Hapus</button>
+              </form>
+            </li>
+          ))}
+          {items.length === 0 && <li className="py-2 text-sm text-slate-400">Belum ada item.</li>}
+        </ul>
+        <p className="mt-2 text-right text-sm text-slate-500">Subtotal item: <span className="font-semibold text-slate-700">{formatRupiah(total)}</span></p>
+
+        <form action={tambahItemTransaksi} className="mt-3 flex flex-wrap items-end gap-2 border-t border-slate-100 pt-3">
+          <input type="hidden" name="bookingId" value={d.id} />
+          <input type="hidden" name="paymentId" value={pay?.id ?? ""} />
+          <input type="hidden" name="kode" value={d.kode_booking} />
+          {dariJadwal && <input type="hidden" name="ref" value="jadwal" />}
+          {dariJadwal && bulan && <input type="hidden" name="bulan" value={bulan} />}
+          <label className="flex-1 text-sm">Tambah paket
+            <select name="packageId" className={inp} required defaultValue="">
+              <option value="" disabled>Pilih paket…</option>
+              {paket.filter((p) => p.is_active).map((p) => (
+                <option key={p.id} value={p.id}>{p.nama} ({formatRupiah(p.harga)})</option>
+              ))}
+            </select>
+          </label>
+          <label className="w-20 text-sm">Qty
+            <input type="number" name="qty" defaultValue={1} min={1} className={inp} />
+          </label>
+          <button className="h-10 rounded bg-slate-800 px-4 text-sm text-white">Tambah</button>
+        </form>
       </div>
 
       {/* Pembayaran: override ongkos/diskon + status (DP dihitung ulang) */}

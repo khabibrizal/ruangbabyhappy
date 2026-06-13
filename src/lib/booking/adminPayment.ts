@@ -126,3 +126,63 @@ export async function rescheduleBooking(formData: FormData) {
   revalidatePath("/admin/transaksi");
   redirect(`/admin/transaksi/${kode}?ok=${encodeURIComponent("Jadwal diperbarui")}${navSuffix(formData)}`);
 }
+
+/**
+ * Sumber kebenaran total header: payment.total = Σ(booking_item.harga × qty).
+ * Dipanggil tiap kali item ditambah/dihapus. ongkos/diskon/dp tidak diubah
+ * (admin bisa re-save form Pembayaran utk hitung ulang DP otomatis).
+ */
+async function recomputeHeaderTotal(admin: ReturnType<typeof createAdminClient>, bookingId: string, paymentId: string) {
+  const { data: items } = await admin.from("booking_item").select("qty, harga").eq("booking_id", bookingId);
+  const total = (items ?? []).reduce((s, it) => s + Number(it.harga) * Number(it.qty), 0);
+  await admin.from("payment").update({ total }).eq("id", paymentId);
+}
+
+/** Tambah item paket ke transaksi yang sudah ada; total header dihitung ulang. */
+export async function tambahItemTransaksi(formData: FormData) {
+  await guardAdmin();
+  const bookingId = String(formData.get("bookingId") ?? "");
+  const paymentId = String(formData.get("paymentId") ?? "");
+  const kode = String(formData.get("kode") ?? "");
+  const packageId = String(formData.get("packageId") ?? "").trim();
+  const qty = Math.max(1, Math.floor(Number(formData.get("qty") ?? 1)));
+  const admin = createAdminClient();
+
+  if (!packageId) redirect(`/admin/transaksi/${kode}?error=Paket%20wajib%20dipilih${navSuffix(formData)}`);
+  const { data: pkg } = await admin.from("package").select("harga, is_active").eq("id", packageId).single();
+  if (!pkg || !pkg.is_active) {
+    redirect(`/admin/transaksi/${kode}?error=Paket%20tidak%20tersedia${navSuffix(formData)}`);
+  }
+
+  await admin.from("booking_item").insert({ booking_id: bookingId, package_id: packageId, qty, harga: pkg!.harga });
+  await recomputeHeaderTotal(admin, bookingId, paymentId);
+
+  revalidatePath(`/admin/transaksi/${kode}`);
+  revalidatePath("/admin/transaksi");
+  redirect(`/admin/transaksi/${kode}?ok=${encodeURIComponent("Item ditambah")}${navSuffix(formData)}`);
+}
+
+/** Hapus item paket dari transaksi; total header dihitung ulang. Sisakan minimal 1 item. */
+export async function hapusItemTransaksi(formData: FormData) {
+  await guardAdmin();
+  const itemId = String(formData.get("itemId") ?? "");
+  const bookingId = String(formData.get("bookingId") ?? "");
+  const paymentId = String(formData.get("paymentId") ?? "");
+  const kode = String(formData.get("kode") ?? "");
+  const admin = createAdminClient();
+
+  const { count } = await admin
+    .from("booking_item")
+    .select("id", { count: "exact", head: true })
+    .eq("booking_id", bookingId);
+  if ((count ?? 0) <= 1) {
+    redirect(`/admin/transaksi/${kode}?error=Minimal%201%20item%20harus%20tersisa${navSuffix(formData)}`);
+  }
+
+  await admin.from("booking_item").delete().eq("id", itemId).eq("booking_id", bookingId);
+  await recomputeHeaderTotal(admin, bookingId, paymentId);
+
+  revalidatePath(`/admin/transaksi/${kode}`);
+  revalidatePath("/admin/transaksi");
+  redirect(`/admin/transaksi/${kode}?ok=${encodeURIComponent("Item dihapus")}${navSuffix(formData)}`);
+}

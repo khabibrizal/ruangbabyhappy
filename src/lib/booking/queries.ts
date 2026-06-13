@@ -238,16 +238,16 @@ export async function listJadwalBulan(bulan: string): Promise<JadwalItem[]> {
   }));
 }
 
-export type BookingItem = { nama: string; qty: number; harga: number };
+export type BookingItem = { id: string; nama: string; qty: number; harga: number };
 
 /** Item-item paket pada sebuah booking (multi-item admin). Kosong utk booking 1-paket lama. */
 export async function getBookingItems(bookingId: string): Promise<BookingItem[]> {
   const admin = createAdminClient();
   const { data } = await admin
     .from("booking_item")
-    .select("qty, harga, package:package_id(nama)")
+    .select("id, qty, harga, package:package_id(nama)")
     .eq("booking_id", bookingId)
     .order("created_at");
-  const rows = (data as unknown as { qty: number; harga: number; package: { nama: string } | null }[]) ?? [];
-  return rows.map((r) => ({ nama: r.package?.nama ?? "-", qty: r.qty, harga: r.harga }));
+  const rows = (data as unknown as { id: string; qty: number; harga: number; package: { nama: string } | null }[]) ?? [];
+  return rows.map((r) => ({ id: r.id, nama: r.package?.nama ?? "-", qty: r.qty, harga: r.harga }));
 }
