@@ -138,7 +138,7 @@ export async function listTransaksiAdmin(filter: FilterTransaksi = {}): Promise<
   return { rows: withSigned, total: count ?? 0 };
 }
 
-export type ProfileLite = { id: string; nama: string | null; no_wa: string | null; email: string | null; alamat: string | null };
+export type ProfileLite = { id: string; nama: string | null; no_wa: string | null; email: string | null; alamat: string | null; ig: string | null };
 
 export const CUSTOMER_PER_PAGE = 10;
 
@@ -155,7 +155,7 @@ export async function listCustomers(
   const to = from + CUSTOMER_PER_PAGE - 1;
   let query = admin
     .from("profiles")
-    .select("id, nama, no_wa, email, alamat", { count: "exact" })
+    .select("id, nama, no_wa, email, alamat, ig", { count: "exact" })
     .eq("role", "member");
   const term = q.trim();
   if (term.length >= 2) {
@@ -172,7 +172,7 @@ export async function getProfileById(id: string): Promise<ProfileLite | null> {
   const admin = createAdminClient();
   const { data } = await admin
     .from("profiles")
-    .select("id, nama, no_wa, email, alamat")
+    .select("id, nama, no_wa, email, alamat, ig")
     .eq("id", id)
     .maybeSingle();
   return (data as ProfileLite) ?? null;

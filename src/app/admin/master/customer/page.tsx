@@ -76,7 +76,9 @@ export default async function MasterCustomerPage({
             >
               <span className="font-semibold text-slate-800">{c.nama ?? "(tanpa nama)"}</span>
               <span className="text-slate-500"> · {c.no_wa ?? "-"}</span>
-              {c.email && <div className="text-xs text-slate-400">{c.email}</div>}
+              {(c.ig || c.email) && (
+                <div className="text-xs text-slate-400">{[c.ig ? `IG: ${c.ig}` : null, c.email].filter(Boolean).join(" · ")}</div>
+              )}
             </Link>
           ))}
           {customers.length === 0 && <p className="text-sm text-slate-400">Tidak ada customer.</p>}
@@ -111,6 +113,7 @@ export default async function MasterCustomerPage({
               <label className="block text-sm">Nama<input name="nama" defaultValue={selected.nama ?? ""} className={inp} /></label>
               <label className="block text-sm">No. WhatsApp<input name="no_wa" defaultValue={selected.no_wa ?? ""} className={inp} /></label>
               <label className="block text-sm">Email<input name="email" type="email" defaultValue={selected.email ?? ""} className={inp} /></label>
+              <label className="block text-sm">Instagram<input name="ig" defaultValue={selected.ig ?? ""} className={inp} /></label>
               <label className="block text-sm">Alamat<input name="alamat" defaultValue={selected.alamat ?? ""} className={inp} /></label>
             </div>
             <button className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Profil</button>

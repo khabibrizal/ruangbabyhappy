@@ -48,6 +48,7 @@ export async function simpanProfilCustomer(formData: FormData) {
       no_wa: String(formData.get("no_wa") ?? "").trim() || null,
       email: String(formData.get("email") ?? "").trim() || null,
       alamat: String(formData.get("alamat") ?? "").trim() || null,
+      ig: String(formData.get("ig") ?? "").trim() || null,
     })
     .eq("id", id);
 
