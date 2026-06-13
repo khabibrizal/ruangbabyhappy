@@ -122,5 +122,5 @@ export async function buatTransaksiAdmin(formData: FormData) {
     dicatat_oleh: paid ? me.id : null,
   });
 
-  redirect(`/admin/transaksi/${kode}`);
+  redirect(`/admin/transaksi/${kode}?ok=${encodeURIComponent("Transaksi dibuat")}`);
 }

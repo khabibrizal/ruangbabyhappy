@@ -16,10 +16,10 @@ export default async function DetailTransaksiPage({
   params, searchParams,
 }: {
   params: Promise<{ kode: string }>;
-  searchParams: Promise<{ error?: string; ok?: string; ref?: string; bulan?: string }>;
+  searchParams: Promise<{ ref?: string; bulan?: string }>;
 }) {
   const { kode } = await params;
-  const { error, ok, ref, bulan } = await searchParams;
+  const { ref, bulan } = await searchParams;
   const d = await getDetailTransaksi(kode);
   if (!d) notFound();
   const items = await getBookingItems(d.id);
@@ -45,9 +45,6 @@ export default async function DetailTransaksiPage({
         <h1 className="text-xl font-bold text-slate-800">Detail Transaksi</h1>
         <Link href={backHref} className="text-sm text-slate-500 underline">{backLabel}</Link>
       </div>
-
-      {ok && <p className="mt-3 rounded border border-green-300 bg-green-50 p-2 text-sm text-green-700">Perubahan tersimpan.</p>}
-      {error && <p className="mt-3 rounded border border-red-300 bg-red-50 p-2 text-sm text-red-700">{error}</p>}
 
       <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
         <p className="font-mono text-lg font-bold">{d.kode_booking}</p>

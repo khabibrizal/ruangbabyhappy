@@ -86,7 +86,7 @@ export async function simpanDetailTransaksi(formData: FormData) {
 
   revalidatePath(`/admin/transaksi/${kode}`);
   revalidatePath("/admin/transaksi");
-  redirect(`/admin/transaksi/${kode}?ok=1${navSuffix(formData)}`);
+  redirect(`/admin/transaksi/${kode}?ok=${encodeURIComponent("Pembayaran tersimpan")}${navSuffix(formData)}`);
 }
 
 /** Atur status pengerjaan foto (boleh dikosongkan -> belum mulai / NULL). */
@@ -100,7 +100,7 @@ export async function updateStatusPengerjaan(formData: FormData) {
   const admin = createAdminClient();
   await admin.from("booking").update({ status_pengerjaan: nilai, drive_url }).eq("id", bookingId);
   revalidatePath(`/admin/transaksi/${kode}`);
-  redirect(`/admin/transaksi/${kode}?ok=1${navSuffix(formData)}`);
+  redirect(`/admin/transaksi/${kode}?ok=${encodeURIComponent("Status pengerjaan tersimpan")}${navSuffix(formData)}`);
 }
 
 /** Reschedule: ubah paket/tanggal/sesi dengan validasi ketersediaan sesi (kapasitas per layanan). */
@@ -124,5 +124,5 @@ export async function rescheduleBooking(formData: FormData) {
 
   revalidatePath(`/admin/transaksi/${kode}`);
   revalidatePath("/admin/transaksi");
-  redirect(`/admin/transaksi/${kode}?ok=1${navSuffix(formData)}`);
+  redirect(`/admin/transaksi/${kode}?ok=${encodeURIComponent("Jadwal diperbarui")}${navSuffix(formData)}`);
 }

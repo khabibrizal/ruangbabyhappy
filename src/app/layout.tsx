@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Baloo_2, Nunito } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { SITE_URL, SITE_NAME, DEFAULT_OG } from "@/lib/seo/config";
 import JsonLd from "@/components/seo/JsonLd";
 import { localBusiness } from "@/lib/seo/jsonld";
+import FlashToast from "@/components/ui/FlashToast";
 
 const baloo = Baloo_2({ variable: "--font-baloo", subsets: ["latin"], weight: ["500","600","700","800"] });
 const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin"] });
@@ -34,6 +36,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full flex flex-col">
         <JsonLd data={localBusiness()} />
         {children}
+        <Suspense fallback={null}>
+          <FlashToast />
+        </Suspense>
       </body>
     </html>
   );
