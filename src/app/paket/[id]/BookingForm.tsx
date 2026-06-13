@@ -6,7 +6,7 @@ import SubmitButton from "@/components/ui/SubmitButton";
 import { formatRupiah } from "@/lib/format/rupiah";
 import { hitungDiskon, hitungTagihan, hitungDp } from "@/lib/booking/hitung";
 
-type SesiOpsi = { id: string; nama: string; jam_mulai: string };
+type SesiOpsi = { id: string; nama: string; jam_mulai: string; bisa_studio: boolean; bisa_home: boolean };
 type ZonaOpsi = { id: string; nama: string; keterangan: string | null; biaya: number };
 type AnakOpsi = { nama: string; bb: number; jk: string };
 
@@ -53,6 +53,19 @@ export default function BookingForm({
     setLoading(false);
   }
 
+  // Kapabilitas lokasi dari sesi terpilih (default keduanya bila tak terset).
+  const sesiDipilih = sesiList?.find((s) => s.id === sesiId) ?? null;
+  const canStudio = sesiDipilih?.bisa_studio ?? true;
+  const canHome = sesiDipilih?.bisa_home ?? true;
+
+  // Pilih sesi + sesuaikan lokasi dgn kapabilitasnya.
+  function pilihSesi(s: SesiOpsi) {
+    setSesiId(s.id);
+    if (s.bisa_studio && !s.bisa_home) { setLokasi("studio"); setZonaId(""); }
+    else if (!s.bisa_studio && s.bisa_home) { setLokasi("home"); }
+    // keduanya: pertahankan pilihan saat ini
+  }
+
   const ongkos = lokasi === "home" ? (zona.find((z) => z.id === zonaId)?.biaya ?? 0) : 0;
   const diskon = hitungDiskon({ returning, diskonReturning });
   const total = hitungTagihan({ harga, ongkos, diskon });
@@ -82,7 +95,7 @@ export default function BookingForm({
           <label className="text-sm font-bold">⏰ Pilih Sesi</label>
           <div className="mt-1 grid grid-cols-2 gap-2">
             {sesiList.map((s) => (
-              <button key={s.id} type="button" onClick={() => setSesiId(s.id)}
+              <button key={s.id} type="button" onClick={() => pilihSesi(s)}
                 className={`rounded-2xl p-3 text-center text-sm font-bold ring-1 transition ${
                   sesiId === s.id ? "bg-grad text-white ring-transparent" : "bg-white ring-black/10"
                 }`}>
@@ -125,20 +138,30 @@ export default function BookingForm({
           </div>
           )}
 
-          {/* Lokasi */}
+          {/* Lokasi — opsi mengikuti kapabilitas sesi terpilih */}
           <div>
             <label className="text-sm font-bold">📍 Lokasi Sesi</label>
-            <div className="mt-1 grid grid-cols-2 gap-2">
-              <label className={`cursor-pointer rounded-2xl p-3 text-center text-sm font-bold ring-1 ${lokasi === "studio" ? "bg-grad text-white ring-transparent" : "bg-white ring-black/10"}`}>
-                <input type="radio" name="lokasi_sesi" value="studio" className="hidden"
-                  checked={lokasi === "studio"} onChange={() => setLokasi("studio")} />
-                Di Studio
-              </label>
-              <label className={`cursor-pointer rounded-2xl p-3 text-center text-sm font-bold ring-1 ${lokasi === "home" ? "bg-grad text-white ring-transparent" : "bg-white ring-black/10"}`}>
-                <input type="radio" name="lokasi_sesi" value="home" className="hidden"
-                  checked={lokasi === "home"} onChange={() => setLokasi("home")} />
-                Home Service
-              </label>
+            {canStudio && canHome && (
+              <p className="text-xs text-foreground/45">Sesi ini bisa di studio atau home service.</p>
+            )}
+            {canStudio !== canHome && (
+              <p className="text-xs text-foreground/45">Sesi ini hanya tersedia {canStudio ? "di studio" : "untuk home service"}.</p>
+            )}
+            <div className={`mt-1 grid gap-2 ${canStudio && canHome ? "grid-cols-2" : "grid-cols-1"}`}>
+              {canStudio && (
+                <label className={`cursor-pointer rounded-2xl p-3 text-center text-sm font-bold ring-1 ${lokasi === "studio" ? "bg-grad text-white ring-transparent" : "bg-white ring-black/10"}`}>
+                  <input type="radio" name="lokasi_sesi" value="studio" className="hidden"
+                    checked={lokasi === "studio"} onChange={() => { setLokasi("studio"); setZonaId(""); }} />
+                  Di Studio
+                </label>
+              )}
+              {canHome && (
+                <label className={`cursor-pointer rounded-2xl p-3 text-center text-sm font-bold ring-1 ${lokasi === "home" ? "bg-grad text-white ring-transparent" : "bg-white ring-black/10"}`}>
+                  <input type="radio" name="lokasi_sesi" value="home" className="hidden"
+                    checked={lokasi === "home"} onChange={() => setLokasi("home")} />
+                  Home Service
+                </label>
+              )}
             </div>
             {lokasi === "home" && (
               <div className="mt-2 flex flex-col gap-2">

@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { toMinutes } from "@/lib/time/time";
 
-export type SesiOpsi = { id: string; nama: string; jam_mulai: string; urutan: number };
+export type SesiOpsi = { id: string; nama: string; jam_mulai: string; urutan: number; bisa_studio: boolean; bisa_home: boolean };
 
 /**
  * Fungsi murni: saring sesi yang tersedia.
@@ -53,7 +53,7 @@ export async function getSesiTersedia(packageId: string, tanggal: string): Promi
   // 3. Sesi aktif (urut)
   const { data: sesiRows } = await admin
     .from("sesi")
-    .select("id, nama, jam_mulai, urutan")
+    .select("id, nama, jam_mulai, urutan, bisa_studio, bisa_home")
     .eq("is_active", true)
     .order("urutan");
   const sesiAktif = (sesiRows as SesiOpsi[]) ?? [];

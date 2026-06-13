@@ -6,7 +6,7 @@ export type PaketRow = {
   id: string; layanan_id: string; nama: string; deskripsi: string | null;
   harga: number; diskon_returning: number; dp_persen: number; durasi_menit: number; is_active: boolean;
 };
-export type SesiRow = { id: string; nama: string; jam_mulai: string; urutan: number; is_active: boolean };
+export type SesiRow = { id: string; nama: string; jam_mulai: string; urutan: number; bisa_studio: boolean; bisa_home: boolean; is_active: boolean };
 export type ZonaRow = { id: string; nama: string; keterangan: string | null; biaya: number; urutan: number; is_active: boolean };
 export type BlackoutRow = { id: string; tanggal: string; keterangan: string | null };
 
@@ -39,7 +39,7 @@ export async function listPaket(): Promise<PaketRow[]> {
 
 export async function listSesi(): Promise<SesiRow[]> {
   const admin = createAdminClient();
-  const { data } = await admin.from("sesi").select("id, nama, jam_mulai, urutan, is_active").order("urutan");
+  const { data } = await admin.from("sesi").select("id, nama, jam_mulai, urutan, bisa_studio, bisa_home, is_active").order("urutan");
   return (data as SesiRow[]) ?? [];
 }
 

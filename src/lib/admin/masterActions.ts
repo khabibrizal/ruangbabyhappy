@@ -135,12 +135,20 @@ export async function togglePaket(formData: FormData) {
 
 // ---- Sesi ----
 const P_SESI = "/admin/master/sesi";
+/** Baca centang lokasi; pastikan minimal 1 aktif (fallback keduanya bila kosong). */
+function lokasiSesi(formData: FormData): { bisa_studio: boolean; bisa_home: boolean } {
+  let bisa_studio = formData.get("bisa_studio") === "on";
+  let bisa_home = formData.get("bisa_home") === "on";
+  if (!bisa_studio && !bisa_home) { bisa_studio = true; bisa_home = true; }
+  return { bisa_studio, bisa_home };
+}
 export async function buatSesi(formData: FormData) {
   const admin = await guardAdmin();
   await admin.from("sesi").insert({
     nama: String(formData.get("nama") ?? "").trim(),
     jam_mulai: String(formData.get("jam_mulai") ?? "09:00"),
     urutan: Number(formData.get("urutan") ?? 0),
+    ...lokasiSesi(formData),
   });
   revalidatePath(P_SESI);
   okBack(P_SESI, "Sesi disimpan");
@@ -151,6 +159,7 @@ export async function updateSesi(formData: FormData) {
     nama: String(formData.get("nama") ?? "").trim(),
     jam_mulai: String(formData.get("jam_mulai") ?? "09:00"),
     urutan: Number(formData.get("urutan") ?? 0),
+    ...lokasiSesi(formData),
   }).eq("id", String(formData.get("id")));
   revalidatePath(P_SESI);
   okBack(P_SESI, "Sesi diperbarui");

@@ -47,6 +47,10 @@ export async function buatBooking(formData: FormData) {
   const sesiDipilih = sesiTersedia.find((s) => s.id === sesiId);
   if (!sesiDipilih) back("Sesi sudah tidak tersedia");
 
+  // 2b. Lokasi harus sesuai kapabilitas sesi (otoritatif server).
+  if (lokasi === "studio" && !sesiDipilih!.bisa_studio) back("Sesi ini tidak melayani di studio");
+  if (lokasi === "home" && !sesiDipilih!.bisa_home) back("Sesi ini tidak melayani home service");
+
   // 3. Paket -> harga, dp_persen, diskon_returning, + vendor.butuh_anak (otoritatif server).
   const { data: paketData } = await admin
     .from("package")
