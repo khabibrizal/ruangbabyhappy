@@ -6,7 +6,7 @@ import { simpanDetailTransaksi, updateStatusPengerjaan, rescheduleBooking } from
 import { listPaket, listSesi } from "@/lib/admin/masterQueries";
 import { formatRupiah } from "@/lib/format/rupiah";
 import { TAHAP_PENGERJAAN, LABEL_PENGERJAAN } from "@/lib/booking/statusPengerjaan";
-import KirimInvoiceWA from "./KirimInvoiceWA";
+import AksiWa from "@/components/ui/AksiWa";
 
 export const dynamic = "force-dynamic";
 const LABEL_BAYAR: Record<string, string> = { unpaid: "Belum bayar", dp_paid: "Sudah DP", lunas: "Lunas" };
@@ -153,15 +153,19 @@ export default async function DetailTransaksiPage({
       {/* Invoice */}
       <div className="mt-4 flex flex-wrap gap-2">
         <a href={`/invoice/${d.kode_booking}`} target="_blank" rel="noopener noreferrer" className="h-10 rounded border border-slate-300 px-4 text-sm leading-10">Cetak Invoice</a>
-        <KirimInvoiceWA
-          noWa={d.package?.layanan?.admin_wa ?? ""}
-          kode={d.kode_booking}
-          layanan={d.package?.layanan?.nama ?? "-"}
-          paket={d.package?.nama ?? "-"}
-          tanggal={d.tanggal}
-          sesi={d.sesi?.nama ?? ""}
-          total={tagihan}
-          status={LABEL_BAYAR[status] ?? status}
+        <AksiWa
+          noWa={d.profile?.no_wa ?? ""}
+          teks={
+            `Halo Kak ${d.profile?.nama ?? ""}, berikut detail transaksi Anda di Ruang Baby Happy:\n` +
+            `Kode: ${d.kode_booking}\n` +
+            `Layanan: ${d.package?.layanan?.nama ?? "-"}\n` +
+            `Paket: ${d.package?.nama ?? "-"}\n` +
+            `Jadwal: ${d.tanggal} (${d.sesi?.nama ?? ""})\n` +
+            `Total: ${formatRupiah(tagihan)}\n` +
+            `Status: ${LABEL_BAYAR[status] ?? status}\n` +
+            `Terima kasih! 🎀`
+          }
+          invoicePath={`/invoice/${d.kode_booking}`}
         />
       </div>
     </main>
