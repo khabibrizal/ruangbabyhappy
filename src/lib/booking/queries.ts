@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { brand } from "@/lib/brand";
 
 export type BookingKonfirmasi = {
   kode_booking: string;
@@ -202,6 +203,51 @@ export async function listTransaksiByCustomer(profileId: string): Promise<Transa
     .eq("customer_profile_id", profileId)
     .order("created_at", { ascending: false });
   return (data as unknown as TransaksiCustomerRow[]) ?? [];
+}
+
+export type ResiRow = {
+  kode: string;
+  penerimaNama: string;
+  penerimaWa: string;
+  penerimaAlamat: string;
+  pengirimNama: string;
+  pengirimWa: string;
+};
+
+/** Tahap pengerjaan yang boleh dicetak resi-nya. */
+export const RESI_ELIGIBLE = ["pengiriman", "selesai"] as const;
+
+/**
+ * Data resi pengiriman untuk sekumpulan kode booking. Difilter server-side:
+ * hanya booking dgn status_pengerjaan eligible (pengiriman/selesai) yang dikembalikan.
+ * Pengirim = brand + admin_wa layanan; penerima = profil customer.
+ */
+export async function listResiByKodes(kodes: string[]): Promise<ResiRow[]> {
+  const unik = [...new Set(kodes.map((k) => k.trim()).filter(Boolean))].slice(0, 200);
+  if (unik.length === 0) return [];
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("booking")
+    .select(
+      "kode_booking, status_pengerjaan, " +
+        "profile:customer_profile_id(nama, no_wa, alamat), " +
+        "package:package_id(layanan:layanan_id(nama, admin_wa))",
+    )
+    .in("kode_booking", unik)
+    .in("status_pengerjaan", RESI_ELIGIBLE as unknown as string[]);
+  const rows = (data as unknown as {
+    kode_booking: string;
+    profile: { nama: string | null; no_wa: string | null; alamat: string | null } | null;
+    package: { layanan: { nama: string; admin_wa: string } | null } | null;
+  }[]) ?? [];
+  return rows.map((r) => ({
+    kode: r.kode_booking,
+    penerimaNama: r.profile?.nama || "-",
+    penerimaWa: r.profile?.no_wa || "-",
+    penerimaAlamat: r.profile?.alamat || "-",
+    pengirimNama: brand.nama,
+    pengirimWa: r.package?.layanan?.admin_wa || brand.telepon,
+  }));
 }
 
 export type DetailTransaksi = {

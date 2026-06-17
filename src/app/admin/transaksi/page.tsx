@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { listTransaksiAdmin, TRANSAKSI_PER_PAGE, type FilterTransaksi } from "@/lib/booking/queries";
-import { formatRupiah } from "@/lib/format/rupiah";
+import { listTransaksiAdmin, TRANSAKSI_PER_PAGE, RESI_ELIGIBLE, type FilterTransaksi } from "@/lib/booking/queries";
 import { LABEL_PENGERJAAN, indexTahap, TAHAP_PENGERJAAN } from "@/lib/booking/statusPengerjaan";
+import TransaksiList, { type ResiListRow } from "./TransaksiList";
 
 export const dynamic = "force-dynamic";
 const LABEL_BAYAR: Record<string, string> = { unpaid: "Belum bayar", dp_paid: "Sudah DP", lunas: "Lunas" };
+const ELIGIBLE = new Set<string>(RESI_ELIGIBLE as unknown as string[]);
 
 export default async function TransaksiAdminPage({
   searchParams,
@@ -16,6 +17,24 @@ export default async function TransaksiAdminPage({
   const filter: FilterTransaksi = { status: sp.status || undefined, pengerjaan: sp.pengerjaan || undefined, dari: sp.dari || undefined, sampai: sp.sampai || undefined, page };
   const { rows, total } = await listTransaksiAdmin(filter);
   const totalHalaman = Math.max(1, Math.ceil(total / TRANSAKSI_PER_PAGE));
+
+  const listRows: ResiListRow[] = rows.map((r) => {
+    const status = r.payment?.status_bayar ?? "unpaid";
+    const tahap = indexTahap(r.status_pengerjaan);
+    return {
+      id: r.id,
+      kode: r.kode_booking,
+      statusBayarLabel: LABEL_BAYAR[status] ?? status,
+      tahapLabel: tahap < 0 ? "Belum mulai" : LABEL_PENGERJAAN[TAHAP_PENGERJAAN[tahap]],
+      layanan: r.package?.layanan?.nama ?? "-",
+      paket: r.package?.nama ?? "-",
+      tanggal: r.tanggal,
+      sesi: r.sesi?.nama ?? "",
+      nama: r.profile?.nama ?? "Member",
+      tagihan: (r.payment?.total ?? 0) + (r.payment?.ongkos ?? 0) - (r.payment?.diskon ?? 0),
+      eligible: ELIGIBLE.has(r.status_pengerjaan ?? ""),
+    };
+  });
 
   const buatHref = (p: number) => {
     const params = new URLSearchParams();
@@ -62,31 +81,10 @@ export default async function TransaksiAdminPage({
 
       <p className="mt-4 text-sm text-slate-500">{total} transaksi · halaman {page} dari {totalHalaman}</p>
 
-      {rows.length === 0 ? (
+      {listRows.length === 0 ? (
         <p className="mt-2 text-slate-500">Tidak ada transaksi.</p>
       ) : (
-        <div className="mt-2 flex flex-col gap-3">
-          {rows.map((r) => {
-            const status = r.payment?.status_bayar ?? "unpaid";
-            const tahap = indexTahap(r.status_pengerjaan);
-            const tagihan = (r.payment?.total ?? 0) + (r.payment?.ongkos ?? 0) - (r.payment?.diskon ?? 0);
-            return (
-              <Link key={r.id} href={`/admin/transaksi/${r.kode_booking}`} className="block rounded-lg border border-slate-200 bg-white p-4 hover:bg-slate-50">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-mono font-semibold">{r.kode_booking}</span>
-                  <span className="flex gap-1">
-                    <span className="rounded bg-slate-100 px-2 py-0.5 text-xs">{LABEL_BAYAR[status] ?? status}</span>
-                    <span className="rounded bg-pink-100 px-2 py-0.5 text-xs text-pink-600">{tahap < 0 ? "Belum mulai" : LABEL_PENGERJAAN[TAHAP_PENGERJAAN[tahap]]}</span>
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-slate-600">
-                  {r.package?.layanan?.nama ?? "-"} · {r.package?.nama ?? "-"} · {r.tanggal} {r.sesi?.nama ?? ""} · {r.profile?.nama ?? "Member"}
-                </p>
-                <p className="mt-1 text-sm">Total: {formatRupiah(tagihan)}</p>
-              </Link>
-            );
-          })}
-        </div>
+        <TransaksiList rows={listRows} />
       )}
 
       {totalHalaman > 1 && (
