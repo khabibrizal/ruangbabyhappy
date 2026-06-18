@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 /** Base URL situs. Dari env agar migrasi domain = ganti 1 nilai. Tanpa trailing slash. */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://ruangbabyhappy.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.ruangbabyhappy.web.id"
 ).replace(/\/+$/, "");
 
 export const SITE_NAME = "Ruang Baby Happy";
