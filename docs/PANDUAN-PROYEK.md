@@ -260,6 +260,24 @@ Di **Vercel → Settings → Domains**: jadikan `www` primary, set apex
 
 ---
 
+## 8b. Akun & Password
+
+- **Daftar** (`/register`): pakai admin `createUser({ email_confirm: true })` + auto
+  `signInWithPassword` → user langsung login (tak bergantung setting "Confirm email").
+- **Ganti Password** (`/member/ganti-password`): verifikasi password lama →
+  `updateUser`. Tanpa email.
+- **Lupa Password** (`/lupa-password` → `/reset-password`): metode **KODE 6-digit**
+  (bukan magic-link). `resetPasswordForEmail` → user ketik kode dari email →
+  `verifyOtp({ type: "recovery" })` → `updateUser`. Link "Lupa password?" di `/login`.
+  - **Butuh di Supabase**: SMTP aktif + **template "Reset Password" memuat
+    `{{ .Token }}`** (lihat §4). Tanpa itu kode tak terkirim.
+- **Reset Password oleh Admin** (cadangan): di Master Customer detail →
+  `updateUserById`. Tanpa email; customer legacy tanpa akun login tak bisa.
+- 📘 Panduan lengkap + kode copy-paste untuk pasang fitur ini di project lain:
+  [`docs/FITUR-PASSWORD-REUSABLE.md`](FITUR-PASSWORD-REUSABLE.md).
+
+---
+
 ## 9. Troubleshooting
 
 | Gejala | Sebab & solusi |
@@ -270,6 +288,9 @@ Di **Vercel → Settings → Domains**: jadikan `www` primary, set apex
 | Sitemap "Tidak dapat mengambil" di GSC | Umumnya transient setelah submit; cek `sitemap.xml` HTTP 200 application/xml, tunggu beberapa jam. |
 | Domain custom tak terlihat di Vercel | Salah scope. Pilih team `happyphotostudio-s-projects`, bukan akun personal. |
 | Upload galeri "Unexpected end of form" | Body limit. Sudah dinaikkan di `next.config.ts` (`serverActions.bodySizeLimit` & `proxyClientMaxBodySize` 25mb). |
+| Reset password: email masih berformat link | Template "Reset Password" belum diubah ke `{{ .Token }}`/belum Save, atau membuka email lama (Gmail menggabungkan subjek sama). |
+| Reset password: `otp_expired` terus | Email rate-limited (klik email lama) atau pemindai email mengonsumsi link. Pakai metode KODE + SMTP sendiri. |
+| Setting Supabase "tidak ngefek" | Salah project. Pastikan project ref dashboard = `NEXT_PUBLIC_SUPABASE_URL` (`tcvsgmtvtveaqjmehqpu`), bukan project lain. |
 
 ---
 
