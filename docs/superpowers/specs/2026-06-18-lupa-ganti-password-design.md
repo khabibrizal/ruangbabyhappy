@@ -13,22 +13,23 @@ Form: password lama, baru, konfirmasi. Server action: verifikasi password lama v
 `/member?ok=...`. Link "Ganti Password" di header member. Tanpa email. Redirect ke
 `/login` bila belum login.
 
-## B. Lupa Password (email self-service)
+## B. Lupa Password (email self-service — metode KODE 6-digit)
+Memakai **OTP code**, BUKAN magic-link — kebal pemindai link email (yang sering
+mengonsumsi token sekali-pakai → `otp_expired`), lintas-perangkat, tak butuh
+matching redirect URL.
 - `/lupa-password` → form email → action `kirimResetPassword`:
-  `resetPasswordForEmail(email, { redirectTo: ${SITE_URL}/auth/callback?next=/reset-password })`.
-  Selalu tampilkan pesan generik "jika email terdaftar, link reset telah dikirim"
-  (anti email-enumeration).
-- `/auth/callback` (route handler GET) → `exchangeCodeForSession(code)` (set cookie
-  sesi recovery) → redirect ke `next` (default `/reset-password`). Bila tak ada code
-  / gagal → redirect `/lupa-password?error=...`.
-- `/reset-password` (server component) → cek sesi (`getUser`). Ada sesi → form
-  password baru + konfirmasi → action `setPasswordBaru` → `updateUser({ password })`
-  → redirect `/member?ok=...`. Tak ada sesi → pesan "link tidak valid/kadaluarsa,
-  minta ulang".
+  `resetPasswordForEmail(email)` (memicu email berisi `{{ .Token }}` = kode 6-digit)
+  → redirect `/reset-password?email=<email>`.
+- `/reset-password` (form, tanpa sesi) → field: email (prefilled), kode 6-digit,
+  password baru, konfirmasi → action `setPasswordBaru`:
+  `verifyOtp({ email, token: kode, type: "recovery" })` (membuat sesi bila valid)
+  → `updateUser({ password })` → redirect `/member?ok=...`. Kode salah/expired →
+  pesan error.
 - Link **"Lupa password?"** di `/login`.
-- **Konfigurasi Supabase (di luar kode, dilakukan user):** SMTP (mis. Resend) +
-  Redirect URL allowlist (`https://www.ruangbabyhappy.web.id/**`, `localhost:3000/**`).
-  Tanpa ini email tak terkirim; A & C tetap jalan.
+- **Konfigurasi Supabase (user):** (1) SMTP (mis. Resend) di project yg benar
+  (`tcvsgmtvtveaqjmehqpu`) agar email andal; (2) **edit template email "Reset
+  Password"** untuk menampilkan `{{ .Token }}` (kode), bukan hanya link. Redirect URL
+  TIDAK lagi krusial utk metode kode. A & C tetap jalan tanpa SMTP.
 
 ## C. Reset via Admin (backup) — di `/admin/master/customer/[id]`
 Kartu "Reset Password" → input password baru → action `resetPasswordCustomer`:
