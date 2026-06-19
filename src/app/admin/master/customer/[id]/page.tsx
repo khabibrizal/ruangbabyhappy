@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { simpanProfilCustomer } from "@/lib/admin/customerSearch";
+import { simpanProfilCustomer, resetPasswordCustomer } from "@/lib/admin/customerSearch";
 import { getProfileById, listTransaksiByCustomer } from "@/lib/booking/queries";
 import { formatRupiah } from "@/lib/format/rupiah";
 
@@ -47,6 +47,21 @@ export default async function DetailCustomerPage({
           <label className="block text-sm">Alamat<input name="alamat" defaultValue={selected.alamat ?? ""} className={inp} /></label>
         </div>
         <button className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Profil</button>
+      </form>
+
+      {/* Reset password (cadangan bila customer lupa & email bermasalah) */}
+      <form action={resetPasswordCustomer} className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="font-semibold text-slate-700">Reset Password</h2>
+        <p className="mt-1 text-xs text-slate-400">Set password baru utk customer ini (hanya untuk yang sudah punya akun login).</p>
+        <input type="hidden" name="id" value={selected.id} />
+        <input type="hidden" name="q" value={q} />
+        <input type="hidden" name="page" value={page} />
+        <div className="mt-3 flex flex-wrap items-end gap-2">
+          <label className="flex-1 text-sm">Password baru
+            <input name="password" type="text" minLength={8} placeholder="Minimal 8 karakter" className={inp} required />
+          </label>
+          <button className="h-10 rounded bg-slate-800 px-4 text-sm text-white">Reset Password</button>
+        </div>
       </form>
 
       <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">

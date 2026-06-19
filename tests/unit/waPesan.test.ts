@@ -17,7 +17,7 @@ describe("buildPesanWa", () => {
     expect(t).not.toContain("Sisa yang perlu dilunasi");
     expect(t).not.toContain("BCA 12345");
     expect(t).toContain("Follow IG @ruangbabyhappy");
-    expect(t).toContain("ruangbabyhappy.vercel.app");
+    expect(t).toContain("ruangbabyhappy.web.id");
   });
 
   it("unpaid: ada sisa + rekening (per-layanan) + sapaan + ajakan", () => {

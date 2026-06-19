@@ -20,9 +20,12 @@ export default async function MemberPage() {
           <h1 className="font-display text-2xl font-extrabold">Halo, {profile?.nama ?? "Member"} 👋</h1>
           <p className="mt-1 text-sm text-slate-500">Riwayat booking & status pengerjaan fotomu.</p>
         </div>
-        <form action="/logout" method="post">
-          <button className="rounded-full bg-white px-4 py-2 text-sm font-bold ring-1 ring-black/10">Keluar</button>
-        </form>
+        <div className="flex items-center gap-2">
+          <Link href="/member/ganti-password" className="rounded-full bg-white px-4 py-2 text-sm font-bold ring-1 ring-black/10">Ganti Password</Link>
+          <form action="/logout" method="post">
+            <button className="rounded-full bg-white px-4 py-2 text-sm font-bold ring-1 ring-black/10">Keluar</button>
+          </form>
+        </div>
       </div>
 
       <Link href="/" className="mt-4 inline-block rounded-full bg-grad px-4 py-2 text-sm font-bold text-white">+ Booking Baru</Link>

@@ -23,6 +23,9 @@ export default async function LoginPage({
             <SubmitButton className={`${btnGrad} w-full`} pendingText="Masuk…">Masuk</SubmitButton>
           </form>
           <p className="mt-3 text-sm font-semibold text-foreground/60">
+            <a className="text-grad font-bold" href="/lupa-password">Lupa password?</a>
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground/60">
             Belum punya akun? <a className="text-grad font-bold" href="/register">Daftar</a>
           </p>
         </div>
