@@ -40,6 +40,11 @@ describe("buildPesanWa", () => {
     expect(t).toContain("Kode: RBH-250612-AB12");
     expect(t).toContain("Paket: Basic");
   });
+
+  it("selalu memuat promo silang Ruang Happy Studio", () => {
+    expect(buildPesanWa({ ...base, sisa: 0, statusKey: "lunas" })).toContain("www.ruanghappystudio.web.id");
+    expect(buildPesanWa({ ...base, sisa: 5, statusKey: "unpaid" })).toContain("www.ruanghappystudio.web.id");
+  });
 });
 
 describe("buildRekening", () => {

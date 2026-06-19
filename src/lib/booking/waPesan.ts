@@ -10,6 +10,10 @@ const IG = `@${brand.ig}`;
 const WEB = SITE_URL;
 /** Rekening default (fallback) bila layanan belum mengisi rekening sendiri. */
 const REKENING_DEFAULT = `${brand.bank} ${brand.noRek} a.n ${brand.atasNama}`;
+/** Promo silang ke usaha satu grup (studio foto & photobooth event). */
+const PROMO_STUDIO =
+  `\n\nOh ya, butuh booking studio foto atau photobooth event? 📸\n` +
+  `Cek juga Ruang Happy Studio di www.ruanghappystudio.web.id`;
 
 const LABEL: Record<StatusBayar, string> = {
   unpaid: "Belum bayar",
@@ -63,7 +67,8 @@ export function buildPesanWa(p: {
       `Senang banget bisa jadi bagian dari momen si kecil! Sampai jumpa di sesi berikutnya ya 💜\n` +
       `📸 Booking lagi: ${WEB}\n` +
       `📷 Follow IG ${IG} (update & promo)\n` +
-      `Simpan nomor ini ya Kak, & boleh banget rekomendasikan ${NAMA} ke teman & keluarga 🤗`
+      `Simpan nomor ini ya Kak, & boleh banget rekomendasikan ${NAMA} ke teman & keluarga 🤗` +
+      PROMO_STUDIO
     );
   }
 
@@ -77,6 +82,7 @@ export function buildPesanWa(p: {
     `Ditunggu kedatangannya! Biar nggak ketinggalan update & promo:\n` +
     `📷 Follow IG ${IG}\n` +
     `📸 Booking berikutnya: ${WEB}\n` +
-    `Simpan nomor ini ya Kak, boleh juga direkomendasikan ke teman & keluarga 🤗`
+    `Simpan nomor ini ya Kak, boleh juga direkomendasikan ke teman & keluarga 🤗` +
+    PROMO_STUDIO
   );
 }
