@@ -8,6 +8,7 @@ import { formatRupiah } from "@/lib/format/rupiah";
 import { TAHAP_PENGERJAAN, LABEL_PENGERJAAN } from "@/lib/booking/statusPengerjaan";
 import AksiWa from "@/components/ui/AksiWa";
 import { buildPesanWa, buildRekening, type StatusBayar } from "@/lib/booking/waPesan";
+import { buildReminderSesi } from "@/lib/booking/waReminder";
 import SubmitButton from "@/components/ui/SubmitButton";
 
 export const dynamic = "force-dynamic";
@@ -181,6 +182,25 @@ export default async function DetailTransaksiPage({
         </div>
         <SubmitButton className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Reschedule</SubmitButton>
       </form>
+
+      {/* Reminder sesi (WA) — pengingat jadwal + persiapan ke customer */}
+      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="font-semibold text-slate-700">Reminder Sesi (WA)</h2>
+        <p className="mt-1 text-xs text-slate-400">
+          Kirim pengingat jadwal & persiapan ke customer (otomatis sesuai layanan: {d.package?.layanan?.nama ?? "-"}).
+        </p>
+        <div className="mt-3">
+          <AksiWa
+            noWa={d.profile?.no_wa ?? ""}
+            teks={buildReminderSesi({
+              nama: d.profile?.nama ?? "Kak",
+              layanan: d.package?.layanan?.nama ?? "",
+              tanggal: d.tanggal,
+              jam: d.jam_mulai.slice(0, 5),
+            })}
+          />
+        </div>
+      </div>
 
       {/* Invoice */}
       <div className="mt-4 flex flex-wrap gap-2">

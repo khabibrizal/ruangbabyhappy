@@ -7,7 +7,8 @@ import { buildWaWebUrl, normalisasiWa } from "@/lib/booking/waLink";
  * - WA Web (desktop): buka chat langsung di WhatsApp Web (wa.me sering error di desktop).
  * - WA HP: skema wa.me (buka aplikasi WhatsApp di HP).
  * - Salin pesan: cadangan (copy lalu paste manual).
- * `invoicePath` (mis. "/invoice/ABC") digabung dengan origin di client jadi link PDF.
+ * `invoicePath` (opsional, mis. "/invoice/ABC") digabung dengan origin di client jadi
+ * link PDF; bila tak diisi (mis. pesan reminder), link invoice tidak ditambahkan.
  */
 export default function AksiWa({
   noWa,
@@ -16,11 +17,12 @@ export default function AksiWa({
 }: {
   noWa: string;
   teks: string;
-  invoicePath: string;
+  invoicePath?: string;
 }) {
   const [tersalin, setTersalin] = useState(false);
 
   function pesanLengkap() {
+    if (!invoicePath) return teks;
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     return `${teks}\n📄 Invoice (PDF): ${origin}${invoicePath}`;
   }
