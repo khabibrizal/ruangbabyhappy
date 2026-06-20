@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listVendor } from "@/lib/admin/masterQueries";
 import { buatVendor, updateVendor, toggleVendor } from "@/lib/admin/masterActions";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export const dynamic = "force-dynamic";
 const inp = "rounded border border-slate-300 p-2";
@@ -23,7 +24,7 @@ export default async function MasterVendorPage() {
         <label className="col-span-2 flex items-center gap-2 text-sm text-slate-700">
           <input type="checkbox" name="butuh_anak" defaultChecked /> Butuh data anak (sesi bayi/anak)
         </label>
-        <button className="col-span-2 h-11 rounded bg-slate-800 px-4 text-white">Tambah Vendor</button>
+        <SubmitButton className="col-span-2 h-11 rounded bg-slate-800 px-4 text-white">Tambah Vendor</SubmitButton>
       </form>
 
       <div className="mt-4 flex flex-col gap-3">
@@ -40,7 +41,7 @@ export default async function MasterVendorPage() {
                 <input type="checkbox" name="butuh_anak" defaultChecked={r.butuh_anak} /> Butuh data anak
               </label>
               <div className="col-span-2 flex items-center gap-2">
-                <button className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</button>
+                <SubmitButton className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</SubmitButton>
                 <span className="text-xs text-slate-500">
                   /v/{r.slug} {r.is_default && "· (default)"} {!r.is_active && "· (nonaktif)"}
                 </span>
@@ -49,9 +50,9 @@ export default async function MasterVendorPage() {
             <form action={toggleVendor} className="mt-2">
               <input type="hidden" name="id" value={r.id} />
               <input type="hidden" name="aktif" value={String(r.is_active)} />
-              <button className="h-8 rounded border border-slate-300 px-3 text-xs">
+              <SubmitButton className="h-8 rounded border border-slate-300 px-3 text-xs">
                 {r.is_active ? "Nonaktifkan" : "Aktifkan"}
-              </button>
+              </SubmitButton>
             </form>
           </div>
         ))}

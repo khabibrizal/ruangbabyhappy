@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { simpanProfilCustomer, resetPasswordCustomer } from "@/lib/admin/customerSearch";
 import { getProfileById, listTransaksiByCustomer } from "@/lib/booking/queries";
 import { formatRupiah } from "@/lib/format/rupiah";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export const dynamic = "force-dynamic";
 const inp = "mt-1 block w-full rounded border border-slate-300 p-2 text-sm";
@@ -46,7 +47,7 @@ export default async function DetailCustomerPage({
           <label className="block text-sm">Instagram<input name="ig" defaultValue={selected.ig ?? ""} className={inp} /></label>
           <label className="block text-sm">Alamat<input name="alamat" defaultValue={selected.alamat ?? ""} className={inp} /></label>
         </div>
-        <button className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Profil</button>
+        <SubmitButton className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Profil</SubmitButton>
       </form>
 
       {/* Reset password (cadangan bila customer lupa & email bermasalah) */}
@@ -60,7 +61,7 @@ export default async function DetailCustomerPage({
           <label className="flex-1 text-sm">Password baru
             <input name="password" type="text" minLength={8} placeholder="Minimal 8 karakter" className={inp} required />
           </label>
-          <button className="h-10 rounded bg-slate-800 px-4 text-sm text-white">Reset Password</button>
+          <SubmitButton className="h-10 rounded bg-slate-800 px-4 text-sm text-white">Reset Password</SubmitButton>
         </div>
       </form>
 

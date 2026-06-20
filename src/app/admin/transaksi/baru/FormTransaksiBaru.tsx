@@ -4,6 +4,7 @@ import { buatTransaksiAdmin } from "@/lib/admin/createTransaksiAdmin";
 import { cariCustomer, anakCustomer, type CustomerHit } from "@/lib/admin/customerSearch";
 import { formatRupiah } from "@/lib/format/rupiah";
 import { hitungDp } from "@/lib/booking/hitung";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 type Paket = { id: string; nama: string; harga: number; dp_persen: number; layanan: string };
 type Sesi = { id: string; nama: string; jam_mulai: string };
@@ -170,7 +171,7 @@ export default function FormTransaksiBaru({ paket, sesi, zona }: { paket: Paket[
         </div>
       </section>
 
-      <button className="h-11 rounded-full bg-grad font-bold text-white">Simpan Transaksi</button>
+      <SubmitButton className="h-11 rounded-full bg-grad font-bold text-white" pendingText="Menyimpan…">Simpan Transaksi</SubmitButton>
     </form>
   );
 }

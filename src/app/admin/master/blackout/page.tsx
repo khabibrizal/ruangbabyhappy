@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listBlackout } from "@/lib/admin/masterQueries";
 import { buatBlackout, hapusBlackout } from "@/lib/admin/masterActions";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export const dynamic = "force-dynamic";
 const inp = "rounded border border-slate-300 p-2";
@@ -17,7 +18,7 @@ export default async function MasterBlackoutPage() {
       <form action={buatBlackout} className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-slate-200 bg-white p-4">
         <input name="tanggal" type="date" className={inp} required />
         <input name="keterangan" placeholder="Keterangan (Libur)" className={inp} />
-        <button className="col-span-2 h-11 rounded bg-slate-800 px-4 text-white">Tambah Tanggal Tutup</button>
+        <SubmitButton className="col-span-2 h-11 rounded bg-slate-800 px-4 text-white">Tambah Tanggal Tutup</SubmitButton>
       </form>
 
       <div className="mt-4 flex flex-col gap-2">
@@ -26,7 +27,7 @@ export default async function MasterBlackoutPage() {
             <span className="text-sm font-medium text-slate-700">{r.tanggal} {r.keterangan && `· ${r.keterangan}`}</span>
             <form action={hapusBlackout}>
               <input type="hidden" name="id" value={r.id} />
-              <button className="h-8 rounded border border-red-300 px-3 text-xs text-red-600">Hapus</button>
+              <SubmitButton className="h-8 rounded border border-red-300 px-3 text-xs text-red-600">Hapus</SubmitButton>
             </form>
           </div>
         ))}

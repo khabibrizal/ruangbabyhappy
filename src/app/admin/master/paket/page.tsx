@@ -2,6 +2,7 @@ import Link from "next/link";
 import { listPaket, listLayanan } from "@/lib/admin/masterQueries";
 import { buatPaket, updatePaket, togglePaket } from "@/lib/admin/masterActions";
 import { formatRupiah } from "@/lib/format/rupiah";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export const dynamic = "force-dynamic";
 const inp = "rounded border border-slate-300 p-2";
@@ -32,7 +33,7 @@ export default async function MasterPaketPage() {
           <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_studio" defaultChecked /> Di Studio</label>
           <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_home" defaultChecked /> Home Service</label>
         </div>
-        <button className="col-span-2 h-11 rounded bg-slate-800 px-4 text-white">Tambah Paket</button>
+        <SubmitButton className="col-span-2 h-11 rounded bg-slate-800 px-4 text-white">Tambah Paket</SubmitButton>
       </form>
 
       <div className="mt-4 flex flex-col gap-3">
@@ -55,7 +56,7 @@ export default async function MasterPaketPage() {
                 <label className="flex items-center gap-1.5"><input type="checkbox" name="bisa_home" defaultChecked={r.bisa_home} /> Home Service</label>
               </div>
               <div className="col-span-2 flex items-center gap-2">
-                <button className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</button>
+                <SubmitButton className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</SubmitButton>
                 <span className="text-xs text-slate-500">
                   {formatRupiah(r.harga)} · DP {r.dp_persen}% {!r.is_active && "· (nonaktif)"}
                 </span>
@@ -64,9 +65,9 @@ export default async function MasterPaketPage() {
             <form action={togglePaket} className="mt-2">
               <input type="hidden" name="id" value={r.id} />
               <input type="hidden" name="aktif" value={String(r.is_active)} />
-              <button className="h-8 rounded border border-slate-300 px-3 text-xs">
+              <SubmitButton className="h-8 rounded border border-slate-300 px-3 text-xs">
                 {r.is_active ? "Nonaktifkan" : "Aktifkan"}
-              </button>
+              </SubmitButton>
             </form>
           </div>
         ))}

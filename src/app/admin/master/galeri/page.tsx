@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getGaleri } from "@/lib/gallery/queries";
 import { uploadGaleri, hapusGaleri } from "@/lib/admin/masterActions";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export default async function MasterGaleriPage() {
 
       <form action={uploadGaleri} className="mt-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center">
         <input name="gambar" type="file" accept="image/*" required className="flex-1 text-sm file:mr-3 file:rounded file:border-0 file:bg-slate-800 file:px-4 file:py-2 file:text-white" />
-        <button className="h-11 rounded bg-slate-800 px-4 text-white">Upload</button>
+        <SubmitButton className="h-11 rounded bg-slate-800 px-4 text-white">Upload</SubmitButton>
       </form>
       <p className="mt-1 text-xs text-slate-500">Gambar otomatis dikompres (WebP, maks 1600px).</p>
 
@@ -26,7 +27,7 @@ export default async function MasterGaleriPage() {
             <img src={g.url} alt="Galeri" className="aspect-[3/4] w-full rounded object-cover" />
             <form action={hapusGaleri} className="mt-2">
               <input type="hidden" name="id" value={g.id} />
-              <button className="h-8 w-full rounded border border-red-300 px-3 text-xs text-red-600">Hapus</button>
+              <SubmitButton className="h-8 w-full rounded border border-red-300 px-3 text-xs text-red-600">Hapus</SubmitButton>
             </form>
           </div>
         ))}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listSesi } from "@/lib/admin/masterQueries";
 import { buatSesi, updateSesi, toggleSesi } from "@/lib/admin/masterActions";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export const dynamic = "force-dynamic";
 const inp = "rounded border border-slate-300 p-2";
@@ -18,7 +19,7 @@ export default async function MasterSesiPage() {
         <input name="nama" placeholder="Nama (Sesi 3)" className={inp} required />
         <input name="jam_mulai" type="time" className={inp} required defaultValue="09:00" />
         <input name="urutan" type="number" placeholder="Urutan" className={inp} defaultValue={0} />
-        <button className="col-span-3 h-11 rounded bg-slate-800 px-4 text-white">Tambah Sesi</button>
+        <SubmitButton className="col-span-3 h-11 rounded bg-slate-800 px-4 text-white">Tambah Sesi</SubmitButton>
       </form>
 
       <div className="mt-4 flex flex-col gap-3">
@@ -30,16 +31,16 @@ export default async function MasterSesiPage() {
               <input name="jam_mulai" type="time" defaultValue={r.jam_mulai.slice(0, 5)} className={inp} required />
               <input name="urutan" type="number" defaultValue={r.urutan} className={inp} />
               <div className="col-span-3 flex items-center gap-2">
-                <button className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</button>
+                <SubmitButton className="h-9 rounded bg-slate-800 px-3 text-sm text-white">Simpan</SubmitButton>
                 {!r.is_active && <span className="text-xs text-slate-400">(nonaktif)</span>}
               </div>
             </form>
             <form action={toggleSesi} className="mt-2">
               <input type="hidden" name="id" value={r.id} />
               <input type="hidden" name="aktif" value={String(r.is_active)} />
-              <button className="h-8 rounded border border-slate-300 px-3 text-xs">
+              <SubmitButton className="h-8 rounded border border-slate-300 px-3 text-xs">
                 {r.is_active ? "Nonaktifkan" : "Aktifkan"}
-              </button>
+              </SubmitButton>
             </form>
           </div>
         ))}

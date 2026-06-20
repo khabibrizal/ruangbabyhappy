@@ -8,6 +8,7 @@ import { formatRupiah } from "@/lib/format/rupiah";
 import { TAHAP_PENGERJAAN, LABEL_PENGERJAAN } from "@/lib/booking/statusPengerjaan";
 import AksiWa from "@/components/ui/AksiWa";
 import { buildPesanWa, buildRekening, type StatusBayar } from "@/lib/booking/waPesan";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 export const dynamic = "force-dynamic";
 const LABEL_BAYAR: Record<string, string> = { unpaid: "Belum bayar", dp_paid: "Sudah DP", lunas: "Lunas" };
@@ -84,7 +85,7 @@ export default async function DetailTransaksiPage({
                 <input type="hidden" name="kode" value={d.kode_booking} />
                 {dariJadwal && <input type="hidden" name="ref" value="jadwal" />}
                 {dariJadwal && bulan && <input type="hidden" name="bulan" value={bulan} />}
-                <button className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50">Hapus</button>
+                <SubmitButton className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50">Hapus</SubmitButton>
               </form>
             </li>
           ))}
@@ -109,7 +110,7 @@ export default async function DetailTransaksiPage({
           <label className="w-20 text-sm">Qty
             <input type="number" name="qty" defaultValue={1} min={1} className={inp} />
           </label>
-          <button className="h-10 rounded bg-slate-800 px-4 text-sm text-white">Tambah</button>
+          <SubmitButton className="h-10 rounded bg-slate-800 px-4 text-sm text-white">Tambah</SubmitButton>
         </form>
       </div>
 
@@ -134,7 +135,7 @@ export default async function DetailTransaksiPage({
           </select>
         </label>
         <p className="mt-2 text-xs text-slate-400">DP bisa diisi manual. Dikosongkan = dihitung otomatis (paket + ongkos − diskon) × {d.package?.dp_persen ?? 30}%.</p>
-        <button className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan</button>
+        <SubmitButton className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan</SubmitButton>
       </form>
 
       {/* Status pengerjaan */}
@@ -155,7 +156,7 @@ export default async function DetailTransaksiPage({
           placeholder="Link Google Drive hasil foto"
           className={inp}
         />
-        <button className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Status</button>
+        <SubmitButton className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Status</SubmitButton>
       </form>
 
       {/* Reschedule */}
@@ -178,7 +179,7 @@ export default async function DetailTransaksiPage({
             </select>
           </label>
         </div>
-        <button className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Reschedule</button>
+        <SubmitButton className="mt-3 h-10 rounded bg-slate-800 px-4 text-sm text-white">Simpan Reschedule</SubmitButton>
       </form>
 
       {/* Invoice */}
