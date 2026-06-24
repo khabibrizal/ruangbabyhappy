@@ -93,8 +93,13 @@ function parseTs(s) {
 // --- baca & map ---
 const rows = parseCsv(readFileSync(CSV_PATH, "utf8"));
 const header = rows[0].map((h) => h.trim());
-const idx = (name) => header.indexOf(name);
-const iTs = idx("Timestamp"), iNama = idx("Nama Orangtua"), iIg = idx("IG"), iTelp = idx("No Telp"), iAlamat = idx("Alamat");
+// Dukung beberapa format CSV (alias kolom). Pakai yang pertama ketemu.
+const col = (...names) => { for (const n of names) { const i = header.indexOf(n); if (i >= 0) return i; } return -1; };
+const iTs = col("Timestamp");
+const iNama = col("Nama Orangtua", "Nama");
+const iIg = col("IG");
+const iTelp = col("No Telp", "No Telepon");
+const iAlamat = col("Alamat", "Alamat pengiriman");
 
 let total = 0, skipKosong = 0;
 const byKey = new Map();
