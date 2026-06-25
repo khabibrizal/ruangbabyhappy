@@ -91,7 +91,7 @@ export type TransaksiRow = {
   bukti_signed_url: string | null;
 };
 
-export type FilterTransaksi = { status?: string; pengerjaan?: string; dari?: string; sampai?: string; page?: number };
+export type FilterTransaksi = { status?: string; pengerjaan?: string; dari?: string; sampai?: string; layanan?: string; page?: number };
 export const TRANSAKSI_PER_PAGE = 10;
 export type HasilTransaksi = { rows: TransaksiRow[]; total: number };
 
@@ -104,12 +104,16 @@ export async function listTransaksiAdmin(filter: FilterTransaksi = {}): Promise<
   const paymentSelect = filter.status
     ? "payment!inner(id, status_bayar, total, ongkos, diskon, bukti_url)"
     : "payment(id, status_bayar, total, ongkos, diskon, bukti_url)";
+  // Filter layanan butuh inner join ke package agar baris tak-cocok benar2 dibuang.
+  const packageSelect = filter.layanan
+    ? "package!inner(nama, layanan_id, layanan:layanan_id(nama))"
+    : "package:package_id(nama, layanan:layanan_id(nama))";
 
   let q = admin
     .from("booking")
     .select(
       "id, kode_booking, tanggal, anak_nama, status_booking, status_pengerjaan, " +
-        "sesi:sesi_id(nama), package:package_id(nama, layanan:layanan_id(nama)), " +
+        "sesi:sesi_id(nama), " + packageSelect + ", " +
         "profile:customer_profile_id(nama), " +
         paymentSelect,
       { count: "exact" },
@@ -117,6 +121,7 @@ export async function listTransaksiAdmin(filter: FilterTransaksi = {}): Promise<
     .order("created_at", { ascending: false });
 
   if (filter.status) q = q.eq("payment.status_bayar", filter.status);
+  if (filter.layanan) q = q.eq("package.layanan_id", filter.layanan);
   if (filter.dari) q = q.gte("tanggal", filter.dari);
   if (filter.sampai) q = q.lte("tanggal", filter.sampai);
   if (filter.pengerjaan === "belum") q = q.is("status_pengerjaan", null);

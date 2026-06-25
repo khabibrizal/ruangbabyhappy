@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listTransaksiAdmin, TRANSAKSI_PER_PAGE, RESI_ELIGIBLE, type FilterTransaksi } from "@/lib/booking/queries";
+import { listLayanan } from "@/lib/admin/masterQueries";
 import { LABEL_PENGERJAAN, indexTahap, TAHAP_PENGERJAAN } from "@/lib/booking/statusPengerjaan";
 import TransaksiList, { type ResiListRow } from "./TransaksiList";
 
@@ -10,12 +11,12 @@ const ELIGIBLE = new Set<string>(RESI_ELIGIBLE as unknown as string[]);
 export default async function TransaksiAdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; pengerjaan?: string; dari?: string; sampai?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; pengerjaan?: string; dari?: string; sampai?: string; layanan?: string; page?: string }>;
 }) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
-  const filter: FilterTransaksi = { status: sp.status || undefined, pengerjaan: sp.pengerjaan || undefined, dari: sp.dari || undefined, sampai: sp.sampai || undefined, page };
-  const { rows, total } = await listTransaksiAdmin(filter);
+  const filter: FilterTransaksi = { status: sp.status || undefined, pengerjaan: sp.pengerjaan || undefined, dari: sp.dari || undefined, sampai: sp.sampai || undefined, layanan: sp.layanan || undefined, page };
+  const [{ rows, total }, layananList] = await Promise.all([listTransaksiAdmin(filter), listLayanan()]);
   const totalHalaman = Math.max(1, Math.ceil(total / TRANSAKSI_PER_PAGE));
 
   const listRows: ResiListRow[] = rows.map((r) => {
@@ -42,6 +43,7 @@ export default async function TransaksiAdminPage({
     if (filter.pengerjaan) params.set("pengerjaan", filter.pengerjaan);
     if (filter.dari) params.set("dari", filter.dari);
     if (filter.sampai) params.set("sampai", filter.sampai);
+    if (filter.layanan) params.set("layanan", filter.layanan);
     params.set("page", String(p));
     return `/admin/transaksi?${params.toString()}`;
   };
@@ -60,6 +62,12 @@ export default async function TransaksiAdminPage({
         <label className="flex flex-col text-sm">Status
           <select name="status" defaultValue={filter.status ?? ""} className="mt-1 rounded border border-slate-300 p-2">
             <option value="">Semua</option><option value="unpaid">Belum bayar</option><option value="dp_paid">Sudah DP</option><option value="lunas">Lunas</option>
+          </select>
+        </label>
+        <label className="flex flex-col text-sm">Layanan
+          <select name="layanan" defaultValue={filter.layanan ?? ""} className="mt-1 rounded border border-slate-300 p-2">
+            <option value="">Semua</option>
+            {layananList.map((l) => <option key={l.id} value={l.id}>{l.nama}</option>)}
           </select>
         </label>
         <label className="flex flex-col text-sm">Pengerjaan
